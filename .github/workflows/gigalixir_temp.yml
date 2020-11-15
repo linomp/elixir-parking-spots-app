@@ -1,7 +1,6 @@
 # only run this when a PR is accepted and mergend into main
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
       - main
 jobs:
