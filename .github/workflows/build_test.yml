@@ -4,12 +4,12 @@ on:
     - main
 
 jobs:
-  verify:
+  build_test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         otp: [22.2.7]
-        elixir: [1.10.1]
+        elixir: [1.10.3]
 
     services:
       db:
@@ -31,7 +31,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: 13.8.0 
+          node-version: 12.16.3 
 
       - name: Install deps
         run: |

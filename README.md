@@ -1,7 +1,15 @@
 # Find Me a Parking Spot
 
 ## CI/CD workflow
-(TODO)
+*(Work in Progress)*
+
+
+Prod: 
+https://organic-intrepid-bactrian.gigalixirapp.com/
+
+
+Staging: 
+
 
 ## Running locally:
 
