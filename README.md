@@ -6,7 +6,9 @@ Build, Test & Deploy pipeline is implemented via Github Workflows (see ```.githu
 
 For hosting, Heroku was initially considered, but [Phoenix docs recommend Gigalixir instead](https://hexdocs.pm/phoenix/heroku.html#limitations).
 
-The workflow is set up in such a way that, whenever a push is made on any branch, the ```build_test``` job will run on the new code and logged in the "Actions" tab. Internally this sets up a container, installs dependencies, sets up a test db and runs ```mix test```. 
+The workflow is set up in such a way that, whenever a push is made on any branch, the ```build_test``` job will run (logs can be seen in the "Actions" tab). 
+
+Internally this sets up a container, installs dependencies, sets up a test db and runs ```mix test```. 
 
 To merge into main, a PR must be opened and all pipeline checks must pass.
 
