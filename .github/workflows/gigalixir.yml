@@ -10,7 +10,11 @@ jobs:
     if: github.event.pull_request.merged
     steps:
       - uses: actions/checkout@v1
-      - run: sudo pip3 install -U gigalixir --user
+      - run: sudo pip install setuptools
+      - run: sudo pip install pyOpenSSL
+      - run: sudo -H pip install gigalixir --ignore-installed six
+      - run: echo 'export PATH=~/.local/bin:$PATH' >> ~/.bash_profile
+      - run: source ~/.bash_profile
       - run: gigalixir login -e "${{ secrets.GIGALIXIR_EMAIL }}" -y -p "${{ secrets.GIGALIXIR_PASSWORD }}"
       - run: gigalixir git:remote ${{ secrets.GIGALIXIR_APP_NAME }}
       - run: git push -f gigalixir HEAD:refs/heads/main
