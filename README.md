@@ -1,5 +1,8 @@
 # Find Me a Parking Spot
 
+## Project Tracking
+[Link to our Jira project](https://agile-final-project.atlassian.net/secure/RapidBoard.jspa?rapidView=1&view=planning&selectedIssue=FMPS-4&issueLimit=100)
+
 ## CI/CD pipeline
 
 Build, Test & Deploy pipeline is implemented via Github Actions (see ```.github/workflows``` directory).
