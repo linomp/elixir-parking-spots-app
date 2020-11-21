@@ -32,5 +32,7 @@ jobs:
           mix deps.get
           (cd assets && npm install)
 
+      - run: MIX_ENV=test 
+      - run: mix ecto.reset  
       - run: mix test
  
