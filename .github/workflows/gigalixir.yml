@@ -1,4 +1,4 @@
-# only run this when a PR is accepted and mergend into main
+# only run this when a PR is accepted and merged into main
 on:
   pull_request:
     types: [closed]
@@ -10,9 +10,13 @@ jobs:
     if: github.event.pull_request.merged
     steps:
       - uses: actions/checkout@v1
-      - run: sudo pip install setuptools
-      - run: sudo pip install pyOpenSSL
-      - run: sudo -H pip install gigalixir --ignore-installed six
+      - run: sudo apt-get install gcc libpq-dev -y
+      - run: sudo apt-get install python-dev  python-pip -y
+      - run: sudo apt-get install python3-dev python3-pip python3-venv python3-wheel -y
+      - run: sudo pip3 install setuptools
+      - run: sudo pip3 install pyOpenSSL
+      - run: pip3 install wheel
+      - run: sudo pip3 install gigalixir --ignore-installed six
       - run: echo 'export PATH=~/.local/bin:$PATH' >> ~/.bash_profile
       - run: source ~/.bash_profile
       - run: gigalixir login -e "${{ secrets.GIGALIXIR_EMAIL }}" -y -p "${{ secrets.GIGALIXIR_PASSWORD }}"
