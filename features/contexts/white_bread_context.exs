@@ -15,24 +15,33 @@ defmodule WhiteBreadContext do
   end
 
   given_ ~r/^I am in Home page$/, fn state ->
+    navigate_to "/"
     {:ok, state}
   end
 
   when_ ~r/^I click to Register button$/, fn state ->
+    click({:id, "register"})
     {:ok, state}
   end
 
-  and_ ~r/^I input my name as "(?<argument_one>[^"]+)", email "(?<argument_two>[^"]+)", licence number "(?<argument_three>[^"]+)", password "(?<argument_four>[^"]+)"$/,
-  fn state, %{argument_one: _argument_one,argument_two: _argument_two,argument_three: _argument_three,argument_four: _argument_four} ->
+  and_ ~r/^I input my name as "(?<name>[^"]+)", email "(?<email>[^"]+)", licence number "(?<licence_number>[^"]+)", password "(?<password>[^"]+)"$/,
+  fn state, %{name: name,email: email,licence_number: licence_number,password: password} ->
+
+    fill_field({:id, "name"}, name)
+    fill_field({:id, "email"}, email)
+    fill_field({:id, "licence_number"}, licence_number)
+    fill_field({:id, "password"}, password)
     {:ok, state}
   end
 
   and_ ~r/^I click Register$/, fn state ->
+    click({:id, "submit_register"})
     {:ok, state}
   end
 
-  then_ ~r/^I am navigated to my account page$/, fn state ->
-  {:ok, state}
+  then_ ~r/^I get a confirmation message$/, fn state ->
+    assert visible_in_page? ~r/Welcome!/
+    {:ok, state}
   end
 
 end

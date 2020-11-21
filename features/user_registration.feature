@@ -8,4 +8,4 @@ Feature: User registration
     When I click to Register button
     And I input my name as "Tom", email "tom.collins@gmail.com", licence number "ET123456", password "parool"
     And I click Register
-    Then I am navigated to my account page
+    Then I get a confirmation message
