@@ -8,10 +8,13 @@ defmodule WhiteBreadContext do
   end
   scenario_starting_state fn _state ->
     Hound.start_session
+    Ecto.Adapters.SQL.Sandbox.checkout(Fmps.Repo)
+    Ecto.Adapters.SQL.Sandbox.mode(Fmps.Repo, {:shared, self()})
     %{}
   end
   scenario_finalize fn _status, _state -> 
-    Hound.end_session
+    Ecto.Adapters.SQL.Sandbox.checkin(Fmps.Repo)
+    # Hound.end_session
   end
 
   given_ ~r/^I am in Home page$/, fn state ->
@@ -19,8 +22,8 @@ defmodule WhiteBreadContext do
     {:ok, state}
   end
 
-  when_ ~r/^I click to Register button$/, fn state ->
-    click({:id, "register"})
+  when_ ~r/^I click Register button$/, fn state ->
+    click({:id, "register_button"})
     {:ok, state}
   end
 
@@ -40,7 +43,7 @@ defmodule WhiteBreadContext do
   end
 
   then_ ~r/^I get a confirmation message$/, fn state ->
-    assert visible_in_page? ~r/Welcome!/
+    assert visible_in_page? ~r/Account registered successfully/
     {:ok, state}
   end
 

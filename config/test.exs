@@ -15,15 +15,11 @@ config :fmps, Fmps.Repo,
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :fmps, FmpsWeb.Endpoint,
-  http: [port: 4002],
-  server: false
+  http: [port: 4001],
+  server: true
 
 # Print only warnings and errors during test
 config :logger, level: :warn
-
-config :fmps, FmpsWeb.Endpoint,
-  http: [port: 4001],
-  server: false  # Change the `false` to `true`
 
 # Add the following lines at the end of the file
 config :hound, driver: "chrome_driver"

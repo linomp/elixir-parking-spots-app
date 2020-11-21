@@ -5,7 +5,8 @@ Feature: User registration
 
   Scenario: Registering in the system successfully
     Given I am in Home page
-    When I click to Register button
-    And I input my name as "Tom", email "tom.collins@gmail.com", licence number "ET123456", password "parool"
+    When I click Register button
+    And I input my name as "Thomas Collins", email "tom.collins@gmail.com", licence number "ET123456", password "parool"
     And I click Register
     Then I get a confirmation message
+    
