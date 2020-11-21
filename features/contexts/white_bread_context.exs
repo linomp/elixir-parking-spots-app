@@ -14,16 +14,11 @@ defmodule WhiteBreadContext do
   end
   scenario_finalize fn _status, _state -> 
     Ecto.Adapters.SQL.Sandbox.checkin(Fmps.Repo)
-    # Hound.end_session
+    Hound.end_session
   end
 
-  given_ ~r/^I am in Home page$/, fn state ->
-    navigate_to "/"
-    {:ok, state}
-  end
-
-  when_ ~r/^I click Register button$/, fn state ->
-    click({:id, "register_button"})
+  when_ ~r/^I go to Registration page$/, fn state ->
+    navigate_to("/users/new")
     {:ok, state}
   end
 
