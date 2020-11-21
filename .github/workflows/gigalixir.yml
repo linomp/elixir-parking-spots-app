@@ -1,18 +1,16 @@
 # only run this when a PR is accepted and merged into main
 on:
   pull_request:
+    types: [closed]
     branches:
-      - pipelines/migrations
-  #pull_request:
-  #  types: [closed]
-  #  branches:
-  #    - main
+      - main
 jobs:
   docker:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged
     steps:
       - uses: actions/checkout@v1
+      # Hacky trial and error gigalixir CLI installation ritual (don't touch, it works)
       - run: sudo apt-get install gcc libpq-dev -y
       - run: sudo apt-get install python-dev  python-pip -y
       - run: sudo apt-get install python3-dev python3-pip python3-venv python3-wheel -y
@@ -20,9 +18,18 @@ jobs:
       - run: sudo pip3 install pyOpenSSL
       - run: pip3 install wheel
       - run: sudo pip3 install gigalixir --ignore-installed six
+      # Log in to gigalixir with repo secrets, and push
       - run: echo 'export PATH=~/.local/bin:$PATH' >> ~/.bash_profile
       - run: source ~/.bash_profile
       - run: gigalixir login -e "${{ secrets.GIGALIXIR_EMAIL }}" -y -p "${{ secrets.GIGALIXIR_PASSWORD }}"
       - run: gigalixir git:remote ${{ secrets.GIGALIXIR_APP_NAME }}
       - run: git push -f gigalixir HEAD:refs/heads/main
-      - run: gigalixir run mix ecto.migrate
+      # Set up ssh keys for this container, with private key contents in repo secret
+      - run: mkdir ~/.ssh
+      - run: printf "Host *\n StrictHostKeyChecking no" > ~/.ssh/config
+      - run: echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+      - run: chmod 400 ~/.ssh/id_rsa
+      # Run migration in same container where app is running
+      - run: gigalixir ps:migrate -a ${{ secrets.GIGALIXIR_APP_NAME }}
+
+      
