@@ -19,7 +19,7 @@ defmodule FmpsWeb.UserController do
       {:ok, user} ->
         conn
         |> put_flash(:info, "Account registered successfully")
-        |> redirect(to: Routes.user_path(conn, :index))
+        |> redirect(to: Routes.page_path(conn, :index))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)

@@ -47,7 +47,8 @@ defmodule Fmps.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:white_bread, "~> 4.5", only: [:test]},
-      {:hound, "~> 1.0"}
+      {:hound, "~> 1.0"},
+      {:pbkdf2_elixir, "~> 1.0"}
     ]
   end
 
