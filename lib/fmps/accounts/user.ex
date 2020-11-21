@@ -6,15 +6,24 @@ defmodule Fmps.Accounts.User do
     field :email, :string
     field :licence_number, :string
     field :name, :string
-    field :password, :string
-
+    field :password, :string, virtual: true
+    field :hashed_password, :string
     timestamps()
-  end
+    end
 
-  @doc false
-  def changeset(user, attrs) do
-    user
-    |> cast(attrs, [:name, :email, :licence_number, :password])
-    |> validate_required([:name, :email, :licence_number, :password])
-  end
-end
+    def changeset(struct, params \\ %{}) do
+    struct
+    |> cast(params, [:name, :licence_number, :email, :password])
+    |> validate_required([:name, :licence_number, :email, :password])
+    |> unique_constraint(:email)
+    |> validate_format(:email, ~r/@/)
+    |> validate_length(:password, min: 6)
+    |> hash_password
+    end
+
+    defp hash_password(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
+    change(changeset, hashed_password: Pbkdf2.hash_pwd_salt(password))
+    end
+    defp hash_password(changeset), do: changeset
+
+    end
