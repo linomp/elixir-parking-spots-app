@@ -40,6 +40,11 @@ defmodule WhiteBreadContext do
   then_ ~r/^I get a confirmation message$/, fn state ->
     assert visible_in_page? ~r/Account registered successfully/
     {:ok, state}
+  end  
+  
+  then_ ~r/^I get an error message/, fn state ->
+    assert visible_in_page? ~r/invalid/
+    {:ok, state}
   end
 
 end

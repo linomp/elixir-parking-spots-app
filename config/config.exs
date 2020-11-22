@@ -29,3 +29,7 @@ config :phoenix, :json_library, Jason
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"
+
+config :fmps, Fmps.Guardian,
+  issuer: "fmps",
+  secret_key: "2UqhmE/oH8ja+JyH+mOYzsYDi9lRF+7GsCLdAMwfAM8FxF5PywxgbSMRGF8H7h6A" # put the result of running `mix guardian.gen.secret`

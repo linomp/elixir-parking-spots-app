@@ -7,6 +7,15 @@ defmodule FmpsWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    # plug Fmps.Authentication, repo: Fmps.Repo
+  end
+
+  pipeline :browser_auth do
+    plug Fmps.AuthPipeline
+  end
+
+  pipeline :ensure_auth do
+    plug Guardian.Plug.EnsureAuthenticated
   end
 
   pipeline :api do
@@ -14,10 +23,19 @@ defmodule FmpsWeb.Router do
   end
 
   scope "/", FmpsWeb do
-    pipe_through :browser
-
-    get "/", PageController, :index
+    pipe_through [:browser]
+    resources "/sessions", SessionController, only: [:new, :create, :delete]
     resources "/users", UserController
+  end
+
+  scope "/", FmpsWeb do
+    pipe_through [:browser, :browser_auth]
+    get "/", PageController, :index
+  end
+
+  scope "/", FmpsWeb do
+    pipe_through [:browser, :browser_auth, :ensure_auth]
+    get "/", PageController, :index
   end
 
   # Other scopes may use custom stacks.
