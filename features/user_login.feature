@@ -5,7 +5,13 @@ Feature: User login
 
   Scenario: Login into the system successfully
     When I go to Login page
-    And I input my email "tom.collins@gmail.com" and password "parool"
+    And I input my email "anna.karenina@gmail.com" and password "parool"
     And I click Login
     Then I get welcome message
+  
+  Scenario: Login rejected from the system
+    When I go to Login page
+    And I input my email "nosuchuser@gmail.com" and password "parool"
+    And I click Login
+    Then I get error message
   

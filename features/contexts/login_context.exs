@@ -2,6 +2,8 @@ defmodule LoginContext do
   use WhiteBread.Context
   use Hound.Helpers
 
+  alias Fmps.{Repo, Accounts.User}
+
   feature_starting_state fn  ->
     Application.ensure_all_started(:hound)
     %{}
@@ -11,6 +13,11 @@ defmodule LoginContext do
     Hound.start_session
     Ecto.Adapters.SQL.Sandbox.checkout(Fmps.Repo)
     Ecto.Adapters.SQL.Sandbox.mode(Fmps.Repo, {:shared, self()})
+
+    [%{name: "Anna Karenina", email: "anna.karenina@gmail.com", licence_number: "ES345632", password: "parool"}]
+    |> Enum.map(fn user_data -> User.changeset(%User{}, user_data) end)
+    |> Enum.each(fn changeset -> Repo.insert!(changeset) end)
+
     %{}
   end
 
@@ -20,7 +27,7 @@ defmodule LoginContext do
   end
 
   when_ ~r/^I go to Login page$/, fn state ->
-    navigate_to("/session/new")
+    navigate_to("/sessions/new")
     {:ok, state}
   end
 
@@ -39,6 +46,11 @@ defmodule LoginContext do
 
   then_ ~r/^I get welcome message$/, fn state ->
     assert visible_in_page? ~r/Welcome/
+    {:ok, state}
+  end
+
+  then_ ~r/^I get error message$/, fn state ->
+    assert visible_in_page? ~r/Bad User Credentials/
     {:ok, state}
   end
 
