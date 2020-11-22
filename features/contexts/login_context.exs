@@ -54,4 +54,23 @@ defmodule LoginContext do
     {:ok, state}
   end
 
+  given_ ~r/^I am logged in$/, fn state ->
+    navigate_to "/sessions/new"
+    fill_field({:id, "email"}, "anna.karenina@gmail.com")
+    fill_field({:id, "password"}, "parool")
+    click({:id, "submit_login"})
+    :timer.sleep(1000)
+    {:ok, state}
+  end
+
+  when_ ~r/^I click Logout$/, fn state ->
+    click({:id, "submit_logout"})
+    {:ok, state}
+  end
+
+  then_ ~r/^I am being logged out of the system$/, fn state ->
+    assert visible_in_page? ~r/Logged out/
+    {:ok, state}
+  end
+
 end

@@ -14,4 +14,10 @@ Feature: User login
     And I input my email "nosuchuser@gmail.com" and password "parool"
     And I click Login
     Then I get error message
+
+  Scenario: Logout works successfully
+    Given I am logged in
+    When I click Logout
+    Then I am being logged out of the system
+    
   

@@ -9,3 +9,9 @@ Feature: User registration
     And I click Register
     Then I get a confirmation message
     
+  Scenario: Registering with wrong credentials shows error
+    When I go to Registration page
+    And I input my name as "Thomas Collins", email "tom.collinsgmail.com", licence number "ET123456", password "parl"
+    And I click Register
+    Then I get an error message
+    
