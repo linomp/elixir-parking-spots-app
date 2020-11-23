@@ -21,7 +21,7 @@ defmodule LoginContext do
     %{}
   end
 
-  scenario_finalize fn _status, _state -> 
+  scenario_finalize fn _status, _state ->
     Ecto.Adapters.SQL.Sandbox.checkin(Fmps.Repo)
     Hound.end_session
   end
@@ -59,7 +59,7 @@ defmodule LoginContext do
     fill_field({:id, "email"}, "anna.karenina@gmail.com")
     fill_field({:id, "password"}, "parool")
     click({:id, "submit_login"})
-    :timer.sleep(1000)
+    :timer.sleep(3000)
     {:ok, state}
   end
 
