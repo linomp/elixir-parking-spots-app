@@ -26,6 +26,7 @@ defmodule FmpsWeb.Router do
     pipe_through [:browser]
     resources "/sessions", SessionController, only: [:new, :create, :delete]
     resources "/users", UserController
+    resources "/search", SearchController
   end
 
   scope "/", FmpsWeb do

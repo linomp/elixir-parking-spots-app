@@ -1,0 +1,22 @@
+<h1>Type your destination</h1>
+
+<input type="text" id="address"/>
+<button id="search">Search</button>
+
+<br/>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Address</th>
+      <th>category</th>
+    </tr>
+  </thead>
+  <tbody>
+  <%= for spot <- @parkingSpots do %>
+      <tr>
+        <td><%= spot.address %></td>
+        <td><%= spot.parking_category.name %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>

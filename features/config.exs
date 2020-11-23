@@ -8,4 +8,9 @@ defmodule WhiteBreadConfig do
   suite name:          "Login",
         context:       LoginContext,
         feature_paths: ["features/user_login.feature"]
+
+  suite name:          "Search Parking Lots",
+        context:       SearchParkingContext,
+        feature_paths: ["features/search_parking.feature"]
+
 end
