@@ -9,6 +9,7 @@ defmodule Fmps.Parking.Parking_spot do
     field :ongitude, :float
     field :city, :string
     has_one :parking_category, Fmps.Parking.Parking_category# I'm new!
+    timestamps()
   end
 
   def changeset(parking_spot, attrs) do
