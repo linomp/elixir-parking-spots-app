@@ -8,6 +8,7 @@ defmodule Fmps.Parking.ParkingSpot do
     field :latitude, :float
     field :longitude, :float
     field :city, :string
+    field :parking_category_id, :integer
     timestamps()
 
     # we can then access info about the spot's category via  spot.category
