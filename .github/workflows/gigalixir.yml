@@ -24,12 +24,5 @@ jobs:
       - run: gigalixir login -e "${{ secrets.GIGALIXIR_EMAIL }}" -y -p "${{ secrets.GIGALIXIR_PASSWORD }}"
       - run: gigalixir git:remote ${{ secrets.GIGALIXIR_APP_NAME }}
       - run: git push -f gigalixir HEAD:refs/heads/main
-      # Set up ssh keys for this container, with private key contents in repo secret
-      - run: mkdir ~/.ssh
-      - run: printf "Host *\n StrictHostKeyChecking no" > ~/.ssh/config
-      - run: echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-      - run: chmod 400 ~/.ssh/id_rsa
-      # Run migration in same container where app is running
-      - run: gigalixir ps:migrate -a ${{ secrets.GIGALIXIR_APP_NAME }}
-
+      - run: gigalixir run mix ecto.migrate
       
