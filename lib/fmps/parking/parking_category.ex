@@ -6,6 +6,9 @@ defmodule Fmps.Parking.ParkingCategory do
     field :name, :string
     field :hourly_rate, :float
     field :real_time_rate, :float
+
+    # Parking spots of this category, accessible via category.spots
+    has_many :spots, Fmps.Parking.ParkingSpot
   end
 
   def changeset(parking_category, attrs) do
