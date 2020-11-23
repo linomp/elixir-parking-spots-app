@@ -8,14 +8,20 @@
   <thead>
     <tr>
       <th>Address</th>
-      <th>category</th>
+      <th>Zone</th>
+      <th>Hourly Rate</th>
+      <th>Real-Time Rate</th>
+      <th>Distance</th>
     </tr>
   </thead>
   <tbody>
   <%= for spot <- @parkingSpots do %>
-      <tr>
+      <tr class="parking-result">
         <td><%= spot.address %></td>
         <td><%= spot.parking_category.name %></td>
+        <td><%= spot.parking_category.hourly_rate %></td>
+        <td><%= spot.parking_category.real_time_rate %></td>
+        <td>0</td>
       </tr>
   <% end %>
   </tbody>

@@ -26,7 +26,6 @@ defmodule FmpsWeb.Router do
     pipe_through [:browser]
     resources "/sessions", SessionController, only: [:new, :create, :delete]
     resources "/users", UserController
-    resources "/search", SearchController
   end
 
   scope "/", FmpsWeb do
@@ -36,7 +35,7 @@ defmodule FmpsWeb.Router do
 
   scope "/", FmpsWeb do
     pipe_through [:browser, :browser_auth, :ensure_auth]
-    get "/", PageController, :index
+    resources "/search", SearchController
   end
 
   # Other scopes may use custom stacks.

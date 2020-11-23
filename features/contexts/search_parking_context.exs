@@ -2,7 +2,7 @@ defmodule SearchParkingContext do
   use WhiteBread.Context
   use Hound.Helpers
 
-  alias Fmps.{Repo, Accounts.User}
+  alias Fmps.{Repo, Accounts.User, Parking.ParkingCategory}
 
   feature_starting_state fn  ->
     Application.ensure_all_started(:hound)
@@ -25,7 +25,42 @@ defmodule SearchParkingContext do
     click({:id, "submit_login"})
     :timer.sleep(1000)
 
+
+    # Create parking spots
+    categoryA =
+      Repo.insert!(
+        ParkingCategory.changeset(%ParkingCategory{}, %{
+          name: "A",
+          hourly_rate: 2,
+          real_time_rate: 16
+        })
+      )
+
+      [
+        %{
+          name: "a1",
+          address: "Vaike-Turu 1",
+          latitude: 58.378163,
+          longitude: 26.733274,
+          city: "Tartu"
+        },
+        %{
+          name: "a2",
+          address: "Vaike-Turu 4",
+          latitude: 58.377430,
+          longitude: 26.734850,
+          city: "Tartu"
+        }]
+        |> Enum.map(fn parkingSpotData -> Ecto.build_assoc(categoryA, :spots, parkingSpotData) end)
+        |> Enum.each(fn changeset -> Repo.insert!(changeset) end)
+
+
     %{}
+  end
+
+  scenario_finalize fn _status, _state ->
+    Ecto.Adapters.SQL.Sandbox.checkin(Fmps.Repo)
+    Hound.end_session
   end
 
   when_ ~r/^I go to Search page$/, fn state ->
@@ -47,6 +82,10 @@ defmodule SearchParkingContext do
   then_ ~r/^I get a summary of the available parking lots around$/, fn state ->
     assert visible_in_page? ~r/Zone/
     assert visible_in_page? ~r/Distance/
+    assert visible_in_page? ~r/Hourly Rate/
+    assert visible_in_page? ~r/Real-Time Rate/
+
+    assert (find_all_elements(:class, "parking-result") |> Enum.count) > 0
     {:ok, state}
   end
 
