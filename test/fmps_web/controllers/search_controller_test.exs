@@ -18,8 +18,8 @@ defmodule FmpsWeb.SearchControllerTest do
       %{
         name: "Ujula Konsum",
         address: "Ujula Konsum",
-        latitude: 58.386478,
-        longitude: 26.724802,
+        latitude: 58.386461,
+        longitude: 26.724499,
         city: "Tartu"
       },
       %{
@@ -76,7 +76,7 @@ defmodule FmpsWeb.SearchControllerTest do
           address: "Narva maantee 18, 51009 Tartu"
         }
 
-      conn = get(conn, redirected_to(conn))
+      # conn = get(conn, redirected_to(conn))
 
       # Should display names of close locations
       assert html_response(conn, 200) =~ ~r/Ujula Konsum/

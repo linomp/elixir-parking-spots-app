@@ -3,6 +3,6 @@ defmodule FmpsWeb.PageControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = get(conn, "/")
-    assert html_response(conn, 200) =~ "Find me a parking spot"
+    assert html_response(conn, 200) =~ "Fmps"
   end
 end

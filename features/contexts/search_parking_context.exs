@@ -45,10 +45,17 @@ defmodule SearchParkingContext do
           city: "Tartu"
         },
         %{
-          name: "a2",
-          address: "Vaike-Turu 4",
-          latitude: 58.377430,
-          longitude: 26.734850,
+          name: "a3",
+          address: "Puiestee 110",
+          latitude: 58.386518,
+          longitude: 26.737152,
+          city: "Tartu"
+        },
+        %{
+          name: "a1",
+          address: "Peetri 57-59",
+          latitude: 58.388034,
+          longitude: 26.736930,
           city: "Tartu"
         }]
         |> Enum.map(fn parkingSpotData -> Ecto.build_assoc(categoryA, :spots, parkingSpotData) end)
@@ -76,6 +83,8 @@ defmodule SearchParkingContext do
 
   and_ ~r/^I click Search$/, fn state ->
     click({:id, "search"})
+    :timer.sleep(1000)
+
     {:ok, state}
   end
 

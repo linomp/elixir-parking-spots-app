@@ -1,7 +1,11 @@
+
 <h1>Type your destination</h1>
 
-<input type="text" id="address"/>
-<button id="search">Search</button>
+ <%= form_tag("/search", method: :post) %>
+  <input name="address" type="text" id="address"/>
+  <button id="search">Search</button>
+</form>
+
 
 <br/>
 <table class="table">
@@ -11,18 +15,36 @@
       <th>Zone</th>
       <th>Hourly Rate</th>
       <th>Real-Time Rate</th>
-      <th>Distance</th>
+      <%= if @processedResults==true do%>
+          <th>Distance (m)</th>
+          <th>Walking Time (mins.)</th>
+      <% end %>
+
     </tr>
   </thead>
   <tbody>
-  <%= for spot <- @parkingSpots do %>
-      <tr class="parking-result">
-        <td><%= spot.address %></td>
-        <td><%= spot.parking_category.name %></td>
-        <td><%= spot.parking_category.hourly_rate %></td>
-        <td><%= spot.parking_category.real_time_rate %></td>
-        <td>0</td>
-      </tr>
+
+  <%= if @processedResults==true do%>
+    <%= for spotTuple <- @parkingSpots do %>
+        <tr class="parking-result">
+          <td><%= elem(spotTuple, 0).address %></td>
+          <td><%= elem(spotTuple, 0).parking_category.name %></td>
+          <td><%= elem(spotTuple, 0).parking_category.hourly_rate %></td>
+          <td><%= elem(spotTuple, 0).parking_category.real_time_rate %></td>
+          <td><%= (elem(spotTuple, 1).travelDistance)*1000 %></td>
+          <td><%= round(elem(spotTuple, 1).travelDuration) %></td>
+        </tr>
+    <% end %>
+  <% else %>
+    <%= for spot <- @parkingSpots do %>
+        <tr class="parking-result">
+          <td><%= spot.address %></td>
+          <td><%= spot.parking_category.name %></td>
+          <td><%= spot.parking_category.hourly_rate %></td>
+          <td><%= spot.parking_category.real_time_rate %></td>
+        </tr>
+    <% end %>
   <% end %>
+
   </tbody>
 </table>
