@@ -8,43 +8,53 @@
 
 
 <br/>
-<table class="table">
-  <thead>
-    <tr>
-      <th>Address</th>
-      <th>Zone</th>
-      <th>Hourly Rate</th>
-      <th>Real-Time Rate</th>
+
+  <%= if Enum.count(@parkingSpots) == 0 do%>
+
+    There are no available parking spots near your destination.
+
+  <% else %>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Address</th>
+          <th>Zone</th>
+          <th>Hourly Rate (€)</th>
+          <th>Real-Time Rate (ct. / 5 mins.)</th>
+          <%= if @processedResults==true do%>
+              <th>Distance (m)</th>
+              <th>Walking Time (mins.)</th>
+          <% end %>
+
+        </tr>
+      </thead>
+      <tbody>
+
       <%= if @processedResults==true do%>
-          <th>Distance (m)</th>
-          <th>Walking Time (mins.)</th>
+        <%= for spotTuple <- @parkingSpots do %>
+            <tr class="parking-result">
+              <td><%= elem(spotTuple, 0).address %></td>
+              <td><%= elem(spotTuple, 0).parking_category.name %></td>
+              <td><%= elem(spotTuple, 0).parking_category.hourly_rate %></td>
+              <td><%= elem(spotTuple, 0).parking_category.real_time_rate %></td>
+              <td><%= (elem(spotTuple, 1).travelDistance)*1000 %></td>
+              <td><%= round(elem(spotTuple, 1).travelDuration) %></td>
+            </tr>
+        <% end %>
+      <% else %>
+        <%= for spot <- @parkingSpots do %>
+            <tr class="parking-result">
+              <td><%= spot.address %></td>
+              <td><%= spot.parking_category.name %></td>
+              <td><%= spot.parking_category.hourly_rate %></td>
+              <td><%= spot.parking_category.real_time_rate %></td>
+            </tr>
+        <% end %>
       <% end %>
 
-    </tr>
-  </thead>
-  <tbody>
+      </tbody>
+    </table>
 
-  <%= if @processedResults==true do%>
-    <%= for spotTuple <- @parkingSpots do %>
-        <tr class="parking-result">
-          <td><%= elem(spotTuple, 0).address %></td>
-          <td><%= elem(spotTuple, 0).parking_category.name %></td>
-          <td><%= elem(spotTuple, 0).parking_category.hourly_rate %></td>
-          <td><%= elem(spotTuple, 0).parking_category.real_time_rate %></td>
-          <td><%= (elem(spotTuple, 1).travelDistance)*1000 %></td>
-          <td><%= round(elem(spotTuple, 1).travelDuration) %></td>
-        </tr>
-    <% end %>
-  <% else %>
-    <%= for spot <- @parkingSpots do %>
-        <tr class="parking-result">
-          <td><%= spot.address %></td>
-          <td><%= spot.parking_category.name %></td>
-          <td><%= spot.parking_category.hourly_rate %></td>
-          <td><%= spot.parking_category.real_time_rate %></td>
-        </tr>
-    <% end %>
+
   <% end %>
-
-  </tbody>
-</table>

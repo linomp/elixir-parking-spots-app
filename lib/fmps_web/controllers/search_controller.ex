@@ -23,7 +23,7 @@ defmodule FmpsWeb.SearchController do
   end
 
   def filterOutFartherThan(parkingSpots, distanceInKm) do
-    parkingSpots |> Enum.filter(fn spotTuple -> elem(spotTuple, 1).travelDistance <= distanceInKm end) |> Enum.sort_by( (fn spotTuple -> elem(spotTuple, 1).travelDistance end), :asc)
+    parkingSpots |> Enum.filter(fn spotTuple -> elem(spotTuple, 1).travelDistance <= distanceInKm && elem(spotTuple, 1).travelDistance > 0 end) |> Enum.sort_by( (fn spotTuple -> elem(spotTuple, 1).travelDistance end), :asc)
   end
 
 end
