@@ -32,9 +32,24 @@ Our sources:
 ## Running locally:
 
   * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
   * Install Node.js dependencies with `npm install` inside the `assets` directory
-  * Start Phoenix endpoint with `mix phx.server`
+  * Run `mix ecto.reset` (will wipe all data).  Alternatively, `mix ecto.migrate`
+  * Check unit tests: `MIX_ENV=test mix test`
+  * Start `chromedriver`
+  * Check BDD tests `MIX_ENV=test mix white_bread.run`
+  * To seed your local db: `mix run priv/repo/seeds.exs`
+  * To run the app: `mix phx.server`
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+## Headless BDD Testing alternative (phantomJS)
+* **Headless is faster**; BDD without opening the browser.
+* Download phantomjs executable just like `chrome_driver`: https://phantomjs.org/download.html
+* Run phantom in a separate terminal window: `phantomjs --wd`
+* in `config/test.exs` replace this line:
+  ```
+  config :hound, driver: "chrome_driver"
+  ```
+  with this:
+  ```
+  config :hound, driver: "phantomjs"
+  ```
 

@@ -23,4 +23,10 @@ config :logger, level: :warn
 
 # Add the following lines at the end of the file
 config :hound, driver: "chrome_driver"
+
+# Headless alternative (explore for CI/CD):
+# download phantomjs executable just like chrome_driver: https://phantomjs.org/download.html
+# run phantom in separate window:   phantomjs --wd
+# config :hound, driver: "phantomjs"
+
 config :fmps, sql_sandbox: true

@@ -35,7 +35,7 @@ defmodule FmpsWeb.Router do
 
   scope "/", FmpsWeb do
     pipe_through [:browser, :browser_auth, :ensure_auth]
-    get "/", PageController, :index
+    resources "/search", SearchController
   end
 
   # Other scopes may use custom stacks.

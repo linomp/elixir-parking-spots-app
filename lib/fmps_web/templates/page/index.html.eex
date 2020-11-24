@@ -1,38 +1,20 @@
 <section class="phx-hero">
-  <h1>Find me a parking spot</h1>
-  <p>(insert cringy company slogan here...)</p>
-</section>
 
-<section class="row">
-  <article class="column">
-    <h2>Resources</h2>
-    <ul>
-      <li>
-        <a href="https://hexdocs.pm/phoenix/overview.html">Guides &amp; Docs</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix">Source</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix/blob/v1.5/CHANGELOG.md">v1.5 Changelog</a>
-      </li>
-    </ul>
-  </article>
-  <article class="column">
-    <h2>Help</h2>
-    <ul>
-      <li>
-        <a href="https://elixirforum.com/c/phoenix-forum">Forum</a>
-      </li>
-      <li>
-        <a href="https://webchat.freenode.net/?channels=elixir-lang">#elixir-lang on Freenode IRC</a>
-      </li>
-      <li>
-        <a href="https://twitter.com/elixirphoenix">Twitter @elixirphoenix</a>
-      </li>
-      <li>
-        <a href="https://elixir-slackin.herokuapp.com/">Elixir on Slack</a>
-      </li>
-    </ul>
-  </article>
+  <%= if Fmps.Authentication.load_current_user(@conn) do %>
+      <h1><%= gettext "Welcome %{name}!", name:  Fmps.Authentication.load_current_user(@conn).name %></h1>
+      <h1><%= %></h1>
+  <% else %>
+            <li><%= link "Log in", to: Routes.session_path(@conn, :new) %></li>
+  <% end %>
+
+  <%= if  Fmps.Authentication.load_current_user(@conn)  do %>
+
+      <section class="row">
+      <article class="column">
+        <ul>
+        <li><%= link "Search for parking spots", to: Routes.search_path(@conn, :index)%></li>
+        </ul>
+      </article>
+    </section>
+  <% end %>
 </section>

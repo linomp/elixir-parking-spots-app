@@ -8,11 +8,11 @@ defmodule Fmps.Parking.ParkingSpot do
     field :latitude, :float
     field :longitude, :float
     field :city, :string
-    field :parking_category_id, :integer
+    # field :parking_category_id, :integer
     timestamps()
 
     # we can then access info about the spot's category via  spot.category
-    belongs_to :category, Fmps.Parking.ParkingCategory
+    belongs_to :parking_category, Fmps.Parking.ParkingCategory
   end
 
   def changeset(parking_spot, attrs) do
