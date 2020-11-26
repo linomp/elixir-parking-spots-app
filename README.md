@@ -1,5 +1,11 @@
 # Find Me a Parking Spot
 
+## Deployed App
+
+The app is live! Check it out at: 
+https://organic-intrepid-bactrian.gigalixirapp.com/
+
+
 ## Project Tracking
 [Link to our Jira project](https://agile-final-project.atlassian.net/secure/RapidBoard.jspa?rapidView=1&view=planning&selectedIssue=FMPS-4&issueLimit=100)
 
@@ -16,9 +22,6 @@ Internally this sets up a container, installs dependencies, sets up a test db an
 To merge into main, a PR must be opened and all pipeline checks must pass.
 
 Once a PR is accepted and merged into ```main```, the ```gigalixir``` job will run and deploy the latest code in ```main``` branch to Gigalixir.
-
-Check out the deployed app at: 
-https://organic-intrepid-bactrian.gigalixirapp.com/
 
 
 
