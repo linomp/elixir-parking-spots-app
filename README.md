@@ -2,7 +2,9 @@
 
 ## Deployed App
 
-The app is live! Check it out at: 
+The app is live! 
+
+Check it out at: 
 https://organic-intrepid-bactrian.gigalixirapp.com/
 
 
@@ -37,12 +39,21 @@ Our sources:
   * Install dependencies with `mix deps.get`
   * Install Node.js dependencies with `npm install` inside the `assets` directory
   * Run `mix ecto.reset` (will wipe all data).  Alternatively, `mix ecto.migrate`
-  * Check unit tests: `MIX_ENV=test mix test`
-  * Start `chromedriver`
-  * Check BDD tests `MIX_ENV=test mix white_bread.run`
-  * To seed your local db: `mix run priv/repo/seeds.exs`
   * To run the app: `mix phx.server`
-
+  
+  
+  **Note:**
+  * Whenever you need to seed your local db: `mix run priv/repo/seeds.exs`
+ 
+## Unit Tests
+  * Run: `MIX_ENV=test mix test`
+  
+## BDD Tests
+  * Start `chromedriver`
+  * Run `MIX_ENV=test mix ecto.reset`
+  * Run `MIX_ENV=test mix white_bread.run`
+ 
+  
 ## Headless BDD Testing alternative (phantomJS)
 * **Headless is faster**; BDD without opening the browser.
 * Download phantomjs executable just like `chrome_driver`: https://phantomjs.org/download.html
