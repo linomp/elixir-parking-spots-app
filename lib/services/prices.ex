@@ -21,11 +21,7 @@ defmodule Fmps.Prices do
 
   @spec isValid(any) :: boolean
   def isValid(time) do
-    if (time) do
-      true
-    else
-      false
-    end
+    not (String.match?(time, ~r/-/) or time == "")
   end
 
 end

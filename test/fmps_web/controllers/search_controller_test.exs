@@ -88,7 +88,8 @@ defmodule FmpsWeb.SearchControllerTest do
     test "Returns places within an arbitrary radius", %{conn: conn} do
       conn =
         post conn, "/search", %{
-          address: "Narva maantee 18, 51009 Tartu"
+          address: "Narva maantee 18, 51009 Tartu",
+          leavingTime: ""
         }
       # conn = get(conn, redirected_to(conn))
 
