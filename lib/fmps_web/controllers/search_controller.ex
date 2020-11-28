@@ -7,18 +7,18 @@ defmodule FmpsWeb.SearchController do
   def index(conn, _params) do
     parkingSpots = Repo.all(ParkingSpot) |> Repo.preload(:parking_category)
 
-    IO.inspect(parkingSpots)
+    # IO.inspect(parkingSpots)
     render(conn, "index.html", parkingSpots: parkingSpots, processedResults: false)
   end
 
   def create(conn, params) do
     address = params["address"]
-    IO.inspect(params)
+    # IO.inspect(params)
     rawParkingSpots = Repo.all(ParkingSpot) |> Repo.preload(:parking_category)
 
     parkingSpotsWithDistance = Fmps.Geolocation.getParkingSpotsWithDistances(address, rawParkingSpots) |> filterOutFartherThan(1)
 
-    IO.inspect(parkingSpotsWithDistance)
+    # IO.inspect(parkingSpotsWithDistance)
     render(conn, "index.html", parkingSpots: parkingSpotsWithDistance, processedResults: true)
   end
 

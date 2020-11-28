@@ -45,8 +45,8 @@
               <td><%= elem(spotTuple, 0).parking_category.real_time_rate %></td>
               <td><%= (elem(spotTuple, 1).travelDistance)*1000 %></td>
               <td><%= round(elem(spotTuple, 1).travelDuration) %></td>
-              <td> -- </td>
-              <td> -- </td>
+              <td class="estimated-for-hour"> -- </td>
+              <td class="estimated-for-real-time"> -- </td>
             </tr>
         <% end %>
       <% else %>
