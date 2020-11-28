@@ -23,6 +23,7 @@ defmodule FmpsWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import FmpsWeb.ConnCase
+      use HTMLAssertion
 
       alias FmpsWeb.Router.Helpers, as: Routes
 

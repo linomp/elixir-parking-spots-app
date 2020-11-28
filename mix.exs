@@ -51,7 +51,8 @@ defmodule Fmps.MixProject do
       {:pbkdf2_elixir, "~> 1.0"},
       {:guardian, "~> 1.2"},
       {:httpoison, "~> 1.6"},
-      {:poison, "~> 3.1"}
+      {:poison, "~> 3.1"},
+      {:html_assertion, "~> 0.1.5"}
     ]
   end
 

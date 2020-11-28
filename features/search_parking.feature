@@ -8,4 +8,11 @@ Feature: Parking lot search
         And I input my address as "Narva maantee 18, 51009 Tartu"
         And I click Search
         Then I get a summary of the available parking lots around
+    
+    Scenario: Successful parking lots search with intended leaving hour for getting estimated price info
+        When I go to Search page
+        And I input my address as "Narva maantee 18, 51009 Tartu"
+        And I input my intended leaving hour as "18:00"
+        And I click Search
+        Then I get a summary of the available parking lots around with estimated price info
 
