@@ -1,8 +1,8 @@
 defmodule Fmps.Geolocation do
   def getParkingSpotsWithDistances(address, parkingSpots) do
 
-    IO.inspect("address")
-    IO.inspect(address)
+    #IO.inspect("address")
+    #IO.inspect(address)
     [o1, o2] = find_location(address)
     uri = buildDistanceMatrixUri(o1, o2, parkingSpots, get_key())
 

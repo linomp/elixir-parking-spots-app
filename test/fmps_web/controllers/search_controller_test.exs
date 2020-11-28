@@ -109,10 +109,9 @@ defmodule FmpsWeb.SearchControllerTest do
       conn =
         post conn, "/search", %{
           address: "Narva maantee 18, 51009 Tartu",
-          leavingTime: Time.add(currentTime, 2*3600, :second),
-          currentTime: currentTime
+          leavingTime: Time.add(currentTime, (2*3600 + 2*3600), :second) |> Time.to_iso8601(:extended) |> String.slice(0..4)
         }
-      # conn = get(conn, redirected_to(conn))
+
 
       # Should display names of close locations
       assert html_response(conn, 200) =~ ~r/Ujula Konsum/
@@ -120,13 +119,17 @@ defmodule FmpsWeb.SearchControllerTest do
 
       # Ujula Konsum estimations
       html_response(conn, 200)
-      |> assert_select("td.estimated-for-hour", match: "4.00") # hour  (zone A hourly * hours of stay)
-      |> assert_select("td.estimated-for-real-time", match: convertRealTimeRate(16)*2)
+      |> assert_select("td.estimated-for-hour", match:  ~r/"estimated-for-hour\"> 4/) # hour  (zone A hourly * hours of stay)
 
-       # Neste estimations
-       html_response(conn, 200)
-       |> assert_select("td.estimated-for-hour", match: "4.00")
-       |> assert_select("td.estimated-for-real-time", match: convertRealTimeRate(8)*2)
+      html_response(conn, 200)
+      |> assert_select("td.estimated-for-real-time", match: ~r/"estimated-for-real-time\"> 3.8/)
+
+      #Neste estimations
+      html_response(conn, 200)
+      |> assert_select("td.estimated-for-hour", match:  ~r/"estimated-for-hour\"> 2/) # hour  (zone A hourly * hours of stay)
+
+      html_response(conn, 200)
+      |> assert_select("td.estimated-for-real-time", match: ~r/"estimated-for-real-time\"> 1.9/)
 
       # Should not display names of far locations
       refute html_response(conn, 200) =~ ~r/Tartu Train Station/
@@ -134,10 +137,7 @@ defmodule FmpsWeb.SearchControllerTest do
     end
   end
 
-  def convertRealTimeRate(rate) do
-    #cents/5min  to cents/min  to eur/hour
-    rate * (1/5) *(1/100) * (60/1)
-  end
+
 
 
 end
