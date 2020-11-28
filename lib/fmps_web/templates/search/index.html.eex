@@ -3,6 +3,9 @@
 
  <%= form_tag("/search", method: :post) %>
   <input name="address" type="text" id="address"/>
+  <label for="leavingTime">Intended Leaving Time (optional):</label>
+  <input name="leavingTime" type="time" id="leavingTime"/>
+  <br />
   <button id="search">Search</button>
 </form>
 
@@ -25,6 +28,8 @@
           <%= if @processedResults==true do%>
               <th>Distance (m)</th>
               <th>Walking Time (mins.)</th>
+              <th>Price (Hourly)</th>
+              <th>Price (Real-Time)</th>
           <% end %>
 
         </tr>
@@ -40,6 +45,8 @@
               <td><%= elem(spotTuple, 0).parking_category.real_time_rate %></td>
               <td><%= (elem(spotTuple, 1).travelDistance)*1000 %></td>
               <td><%= round(elem(spotTuple, 1).travelDuration) %></td>
+              <td> -- </td>
+              <td> -- </td>
             </tr>
         <% end %>
       <% else %>

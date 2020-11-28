@@ -81,6 +81,13 @@ defmodule SearchParkingContext do
     {:ok, state}
   end
 
+  and_ ~r/^I input my intended leaving hour as "(?<argument_one>[^"]+)"$/,
+  fn state, %{argument_one: argument_one} ->
+    fill_field({:id, "leavingTime"}, argument_one)
+
+    {:ok, state}
+  end
+
   and_ ~r/^I click Search$/, fn state ->
     click({:id, "search"})
     :timer.sleep(1000)
@@ -98,13 +105,16 @@ defmodule SearchParkingContext do
     {:ok, state}
   end
 
-  and_ ~r/^I input my intended leaving hour as "(?<argument_one>[^"]+)"$/,
-  fn state, %{argument_one: argument_one} ->
+  then_ ~r/^I get a summary of the available parking lots around with estimated price info$/, fn state ->
+    assert visible_in_page? ~r/Zone/
+    assert visible_in_page? ~r/Distance/
+    assert visible_in_page? ~r/Hourly Rate/
+    assert visible_in_page? ~r/Real-Time Rate/
 
     assert visible_in_page? ~r/Price \(Hourly\)/
     assert visible_in_page? ~r/Price \(Real-Time\)/
 
+    assert (find_all_elements(:class, "parking-result") |> Enum.count) > 0
     {:ok, state}
   end
-
 end
