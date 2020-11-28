@@ -98,4 +98,13 @@ defmodule SearchParkingContext do
     {:ok, state}
   end
 
+  and_ ~r/^I input my intended leaving hour as "(?<argument_one>[^"]+)"$/,
+  fn state, %{argument_one: argument_one} ->
+
+    assert visible_in_page? ~r/Price \(Hourly\)/
+    assert visible_in_page? ~r/Price \(Real-Time\)/
+
+    {:ok, state}
+  end
+
 end
