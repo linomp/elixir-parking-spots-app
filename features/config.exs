@@ -13,4 +13,8 @@ defmodule WhiteBreadConfig do
         context:       SearchParkingContext,
         feature_paths: ["features/search_parking.feature"]
 
+  suite name:          "Wallet",
+        context:       WalletContext,
+        feature_paths: ["features/wallet.feature"]      
+
 end
