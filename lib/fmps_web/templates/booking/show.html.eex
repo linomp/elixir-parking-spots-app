@@ -1,0 +1,22 @@
+<h1>Booking a parking lot at <%= @parkingSpot.address %></h1>
+
+ <h3>Monthly payment is currently deactivated</h1>
+ <%= form_tag("/create", method: :post) %>
+ 
+    <label for="paymentOption">Choose a payment option:</label>
+    <select id="paymentOption">
+        <option value="hourly">Hourly</option>
+        <option value="realTime">Real-time</option>
+    </select>
+
+    <%# <%= time_input form, :time, precision: :millisecond %> 
+
+    <label for="startTime">Start Time:</label>
+    <input name="startTime" type="text" placeholder="HH:MM" id="startTime"/>
+
+    <label for="leaveTime">Leaving Time (only for Real-time):</label>
+    <input name="leaveTime" type="text" placeholder="HH:MM" id="leaveTime"/>
+
+    <br />
+    <button id="create">Submit booking</button>
+</form>
