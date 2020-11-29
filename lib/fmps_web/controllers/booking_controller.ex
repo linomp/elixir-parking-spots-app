@@ -11,8 +11,8 @@ defmodule FmpsWeb.BookingController do
 
     parkingSpotData = Repo.get!(ParkingSpot, id) |> Repo.preload(:parking_category)
     IO.inspect(parkingSpotData)  
-    render(conn, "show.html", parkingSpot: parkingSpotData )
-  end
 
+    render conn, "show.html", parkingSpot: parkingSpotData
+  end
 
 end
