@@ -12,21 +12,20 @@ defmodule Fmps.Prices do
       fn spotTuple ->
         parkingCategory = elem(spotTuple, 0).parking_category
         priceIfHour = Float.ceil(timeInParkingSpot) * parkingCategory.hourly_rate
-        if priceIfHour > 0 do
-          priceIfHour = 0
-        end
         priceIfRealTime = timeInParkingSpot *  convertRealTimeRate( parkingCategory.real_time_rate )
-        if priceIfRealTime > 0 do
-          priceIfRealTime = 0
+
+        if priceIfHour > 0 and priceIfRealTime > 0 do
+          {elem(spotTuple, 0), elem(spotTuple, 1), %{:priceIfHour=>priceIfHour, :priceIfRealTime=>Float.ceil(priceIfRealTime, 2)}}
+        else
+          {elem(spotTuple, 0), elem(spotTuple, 1), %{:priceIfHour=>0, :priceIfRealTime=>0}}
         end
-        {elem(spotTuple, 0), elem(spotTuple, 1), %{:priceIfHour=>priceIfHour, :priceIfRealTime=>Float.ceil(priceIfRealTime, 2)}}
       end
     )
   end
 
   @spec isValid(any) :: boolean
   def isValid(time) do
-    String.match?(time, ~r/^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/)
+    String.match?(time, ~r/^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/) and String.length(time) == 5
   end
 
 end
