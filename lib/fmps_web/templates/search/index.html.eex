@@ -4,7 +4,7 @@
  <%= form_tag("/search", method: :post) %>
   <input name="address" type="text" id="address"/>
   <label for="leavingTime">Intended Leaving Time (optional):</label>
-  <input name="leavingTime" type="time" min="00:00" max="23:59" id="leavingTime"/>
+  <input name="leavingTime" type="text" placeholder="HH:MM" id="leavingTime"/>
   <br />
   <button id="search">Search</button>
 </form>
