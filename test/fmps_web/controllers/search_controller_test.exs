@@ -102,7 +102,7 @@ defmodule FmpsWeb.SearchControllerTest do
     end
   end
 
- 
+  @tag :skip
   describe "Parking spot search with intended leaving hour" do
     test "Returns places within an arbitrary radius + estimated prices", %{conn: conn} do
 

@@ -16,21 +16,29 @@ defmodule FmpsWeb.BookingController do
     render(conn, "index.html", bookings: bookings)
   end
 
-  def create(conn, %{"booking" => booking_params}) do
+  def create(conn, %{"booking"=>booking_params}) do
     case Sales.create_booking(booking_params) do
-      {:ok, booking} ->
+      {:ok, _booking} ->
         conn
         |> put_flash(:info, "Booking created successfully.")
-        |> redirect(to: Routes.booking_path(conn, :show, booking))
+        |> redirect(to: Routes.search_path(conn, :index))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
+        # Read parking address from cookie (previously set in show)
+        parkingSpotAddress = conn.cookies["parkingSpotAddress"]
+        if is_nil(parkingSpotAddress) do
+          render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>"..."})
+        else
+          render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>parkingSpotAddress})
+        end
     end
   end
 
   def show(conn, %{"id" => id}) do
     booking = Sales.change_booking(%Booking{})
     parkingSpotData = Repo.get!(ParkingSpot, id) |> Repo.preload(:parking_category)
+    # Set the parking address info in a cookie, to read when booking creation needs to be re-tried
+    conn = put_resp_cookie(conn, "parkingSpotAddress", parkingSpotData.address)
     render(conn, "new.html", changeset: booking, parkingSpot: parkingSpotData)
   end
 
