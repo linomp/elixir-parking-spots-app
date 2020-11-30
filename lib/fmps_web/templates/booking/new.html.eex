@@ -1,0 +1,6 @@
+<h1>Booking a parking lot at <%= @parkingSpot.address %></h1>
+
+ <h3>Monthly payment is currently deactivated</h1>
+
+<%= render "form.html", Map.put(assigns, :action, Routes.booking_path(@conn, :create)) %>
+

@@ -13,6 +13,8 @@ defmodule Fmps.Parking.ParkingSpot do
 
     # we can then access info about the spot's category via  spot.category
     belongs_to :parking_category, Fmps.Parking.ParkingCategory
+    has_many :bookings, Fmps.Sales.Booking
+
   end
 
   def changeset(parking_spot, attrs) do
