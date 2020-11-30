@@ -1,6 +1,7 @@
 defmodule WalletContext do
   use WhiteBread.Context
   use Hound.Helpers
+  import Hound.Matchers
 
   alias Fmps.{Repo, Accounts.User, Parking.ParkingCategory}
 
@@ -40,18 +41,22 @@ defmodule WalletContext do
   end
 
   and_ ~r/^I see current amount of money in my wallet 0.0$/, fn state ->
+    visible_in_element?({:id, "current_amount"}, ~r/0.0/iu)
     {:ok, state}
   end
 
   and_ ~r/^I input amount of money 120.0$/, fn state ->
+    fill_field({:id, "input_money"}, "120.0")
     {:ok, state}
   end
 
   and_ ~r/^I click Add$/, fn state ->
+    click({:id, "add"})
     {:ok, state}
   end
 
   then_ ~r/^my current amount of money should be updated to 120.0$/, fn state ->
+    visible_in_element?({:id, "current_amount"}, ~r/120.0/iu)
     {:ok, state}
   end
 
