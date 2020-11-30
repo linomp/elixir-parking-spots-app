@@ -124,7 +124,6 @@ defmodule FmpsWeb.BookingControllerTest do
 
       # Book specifically Neste spot
       knownParkingLot = Repo.get_by(ParkingSpot, name: "Neste")
-      IO.inspect knownParkingLot
 
       conn = get conn, "/booking/#{knownParkingLot.id}"
       conn = post conn, "/booking", %{"booking"=>@create_attrs}
@@ -141,6 +140,9 @@ defmodule FmpsWeb.BookingControllerTest do
         }
       # Should display names of close locations, except the already booked
       assert html_response(conn, 200) =~ ~r/Ujula Konsum/
+      refute html_response(conn, 200) =~ ~r/Neste/
+
+      conn = get conn, "/search"
       refute html_response(conn, 200) =~ ~r/Neste/
     end
 

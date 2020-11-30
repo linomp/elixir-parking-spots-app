@@ -9,7 +9,6 @@ defmodule Fmps.Parking.ParkingSpot do
     field :longitude, :float
     field :city, :string
     field :is_available, :boolean, default: true
-    # field :parking_category_id, :integer
     timestamps()
 
     # we can then access info about the spot's category via  spot.category
