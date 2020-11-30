@@ -8,6 +8,7 @@ defmodule Fmps.Parking.ParkingSpot do
     field :latitude, :float
     field :longitude, :float
     field :city, :string
+    field :is_available, :boolean, default: true
     # field :parking_category_id, :integer
     timestamps()
 
@@ -19,6 +20,6 @@ defmodule Fmps.Parking.ParkingSpot do
 
   def changeset(parking_spot, attrs) do
     parking_spot
-    |> cast(attrs, [:name, :address, :latitude, :longitude, :city])
+    |> cast(attrs, [:name, :address, :latitude, :longitude, :city, :is_available])
   end
 end
