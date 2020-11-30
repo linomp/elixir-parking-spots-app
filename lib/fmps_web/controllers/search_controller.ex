@@ -5,7 +5,9 @@ defmodule FmpsWeb.SearchController do
   alias Fmps.Parking.{ParkingSpot}
 
   def index(conn, _params) do
-    parkingSpots = Repo.all(ParkingSpot) |> Repo.preload(:parking_category)
+    parkingSpots = Repo.all(ParkingSpot)
+    |> Repo.preload(:parking_category)
+    |> Enum.filter(fn spot -> spot.is_available end)
 
     render(conn, "index.html", parkingSpots: parkingSpots, processedResults: false)
   end
@@ -15,7 +17,10 @@ defmodule FmpsWeb.SearchController do
 
     rawParkingSpots = Repo.all(ParkingSpot) |> Repo.preload(:parking_category)
 
-    parkingSpotsWithDistances = Fmps.Geolocation.getParkingSpotsWithDistances(address, rawParkingSpots) |> filterOutFartherThan(1)
+    parkingSpotsWithDistances =
+      Fmps.Geolocation.getParkingSpotsWithDistances(address, rawParkingSpots)
+      |> filterOutFartherThan(1)
+      |> filterOutNonAvailable()
 
     if (Fmps.Prices.isValid(params["leavingTime"])) do
       {_ , leavingTime} = Time.from_iso8601(params["leavingTime"]<>":00")
@@ -34,6 +39,10 @@ defmodule FmpsWeb.SearchController do
 
   def filterOutFartherThan(parkingSpots, distanceInKm) do
     parkingSpots |> Enum.filter(fn spotTuple -> elem(spotTuple, 1).travelDistance <= distanceInKm && elem(spotTuple, 1).travelDistance > 0 end) |> Enum.sort_by( (fn spotTuple -> elem(spotTuple, 1).travelDistance end), :asc)
+  end
+
+  def filterOutNonAvailable(parkingSpots) do
+    parkingSpots |> Enum.filter(fn spotTuple -> elem(spotTuple, 0).is_available end)
   end
 
 end

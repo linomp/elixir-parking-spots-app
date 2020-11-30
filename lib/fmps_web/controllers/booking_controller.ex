@@ -25,6 +25,8 @@ defmodule FmpsWeb.BookingController do
     case Sales.create_booking(%{"bookingParams"=>booking_params, "user"=>user, "parkingSpot"=>parkingSpot}) do
       {:ok, _booking} ->
 
+        Ecto.Changeset.change(parkingSpot, %{is_available: false}) |> Repo.update!()
+
         conn
         |> put_flash(:info, "Booking created successfully.")
         |> redirect(to: Routes.search_path(conn, :index))

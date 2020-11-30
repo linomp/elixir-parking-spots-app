@@ -36,10 +36,24 @@ defmodule FmpsWeb.BookingControllerTest do
         city: "Tartu"
       },
       %{
-        name: "a1",
+        name: "a2",
         address: "Peetri 57-59",
         latitude: 58.388034,
         longitude: 26.736930,
+        city: "Tartu"
+      },
+      %{
+        name: "Neste",
+        address: "Neste",
+        latitude: 58.384469,
+        longitude: 26.726815,
+        city: "Tartu"
+      },
+      %{
+        name: "Ujula Konsum",
+        address: "Ujula Konsum",
+        latitude: 58.386461,
+        longitude: 26.724499,
         city: "Tartu"
       }]
       |> Enum.map(fn parkingSpotData -> Ecto.build_assoc(categoryA, :spots, parkingSpotData) end)
@@ -104,6 +118,35 @@ defmodule FmpsWeb.BookingControllerTest do
 
       assert html_response(conn, 200) =~ ~r/Leaving time must be later than start time/
     end
+
+
+    test "Modifies parking spot attribute after booking", %{conn: conn} do
+
+      # Book specifically Neste spot
+      knownParkingLot = Repo.get_by(ParkingSpot, name: "Neste")
+
+      conn = get conn, "/booking/#{knownParkingLot.id}"
+      conn = post conn, "/booking", %{"booking"=>@create_attrs}
+      conn = get(conn, redirected_to(conn))
+
+      # Booking should succeed
+      assert html_response(conn, 200) =~ ~r/Booking created successfully/
+
+      # Search for place that normally would include Neste
+      conn =
+        post conn, "/search", %{
+          address: "Narva maantee 18, 51009 Tartu",
+          leavingTime: ""
+        }
+      # Should display names of close locations, except the already booked
+      assert html_response(conn, 200) =~ ~r/Ujula Konsum/
+      refute html_response(conn, 200) =~ ~r/Neste/
+
+      conn = get conn, "/search"
+      refute html_response(conn, 200) =~ ~r/Neste/
+    end
+
+
   end
 
 
