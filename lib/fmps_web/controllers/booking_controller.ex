@@ -16,7 +16,7 @@ defmodule FmpsWeb.BookingController do
     render(conn, "index.html", bookings: bookings)
   end
 
-  def create(conn, %{"booking" => booking_params}) do
+  def create(conn, booking_params) do
     case Sales.create_booking(booking_params) do
       {:ok, _booking} ->
         conn
