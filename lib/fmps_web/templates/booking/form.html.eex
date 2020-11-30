@@ -1,0 +1,26 @@
+<%= form_for @changeset, @action, fn f -> %>
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+  <% end %>
+
+  <%= label f, "Hourly Payment" %>
+  <%= checkbox f, :is_hourly, id: "is_hourly" %>
+  <%= error_tag f, :is_hourly %>
+
+  <%= label f, "Real-time Payment" %>
+  <input type="checkbox" id="is_real_time">
+
+  <%= label f, :start_time %>
+  <%= time_select f, :start_time, id: "start_time" %>
+  <%= error_tag f, :start_time %>
+
+  <%= label f, :leaving_time %>
+  <%= time_select f, :leaving_time, id: "leaving_time" %>
+  <%= error_tag f, :leaving_time %>
+
+  <div>
+    <%= submit "Submit booking", id: "submit_booking" %>
+  </div>
+<% end %>

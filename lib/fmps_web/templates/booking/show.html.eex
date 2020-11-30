@@ -1,22 +1,23 @@
-<h1>Booking a parking lot at <%= @parkingSpot.address %></h1>
+<h1>Show Booking</h1>
 
- <h3>Monthly payment is currently deactivated</h1>
- <%= form_tag("/create", method: :post) %>
- 
-    <label for="paymentOption">Choose a payment option:</label>
-    <select id="paymentOption">
-        <option value="hourly">Hourly</option>
-        <option value="realTime">Real-time</option>
-    </select>
+<ul>
 
-    <%# <%= time_input form, :time, precision: :millisecond %> 
+  <li>
+    <strong>Is hourly:</strong>
+    <%= @booking.is_hourly %>
+  </li>
 
-    <label for="startTime">Start Time:</label>
-    <input name="startTime" type="text" placeholder="HH:MM" id="startTime"/>
+  <li>
+    <strong>Start time:</strong>
+    <%= @booking.start_time %>
+  </li>
 
-    <label for="leaveTime">Leaving Time (only for Real-time):</label>
-    <input name="leaveTime" type="text" placeholder="HH:MM" id="leaveTime"/>
+  <li>
+    <strong>Leaving time:</strong>
+    <%= @booking.leaving_time %>
+  </li>
 
-    <br />
-    <button id="create">Submit booking</button>
-</form>
+</ul>
+
+<span><%= link "Edit", to: Routes.booking_path(@conn, :edit, @booking) %></span>
+<span><%= link "Back", to: Routes.booking_path(@conn, :index) %></span>

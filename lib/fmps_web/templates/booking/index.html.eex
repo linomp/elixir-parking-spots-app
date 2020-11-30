@@ -1,3 +1,30 @@
+<h1>Listing Bookings</h1>
 
-<h1>Parking Booking</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Is hourly</th>
+      <th>Start time</th>
+      <th>Leaving time</th>
 
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for booking <- @bookings do %>
+    <tr>
+      <td><%= booking.is_hourly %></td>
+      <td><%= booking.start_time %></td>
+      <td><%= booking.leaving_time %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.booking_path(@conn, :show, booking) %></span>
+        <span><%= link "Edit", to: Routes.booking_path(@conn, :edit, booking) %></span>
+        <span><%= link "Delete", to: Routes.booking_path(@conn, :delete, booking), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Booking", to: Routes.booking_path(@conn, :new) %></span>

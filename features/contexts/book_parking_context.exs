@@ -71,40 +71,55 @@ defmodule BookParkingContext do
   end
 
   when_ ~r/^I go to search parking lot page$/, fn state ->
+    navigate_to "/search"
     {:ok, state}
   end
   
-  and_ ~r/^click on a parking lot from the list to book it $/, fn state ->
+  and_ ~r/^click on a parking lot to be navigated to booking page$/, fn state ->
+    click({:id, "Peetri 57-59"})
+    :timer.sleep(1000)
     {:ok, state}
   end
 
-  and_ ~r/^I am navigated to Parking Booking page$/, fn state ->
-    {:ok, state}
-  end
-  
   and_ ~r/^I pick real-time payment$/, fn state ->
+    click({:id, "is_real_time"})
+    # uncheck hourly
+    click({:id, "is_hourly"})
     {:ok, state}
   end
 
   and_ ~r/^I pick hourly payment$/, fn state ->
+    # hourly is checked by default
     {:ok, state}
   end
 
-  and_ ~r/^I enter my start time as "(?<argument_one>[^"]+)"$/,
-  fn state, %{argument_one: _argument_one} ->
+  and_ ~r/^^I enter my start time as "(?<argument_one>[^"]+)":"(?<argument_two>[^"]+)"$/,
+  fn state, %{argument_one: argument_one, argument_two: argument_two} ->
+    find_element(:css, "#start_time_hour option[value='" <> argument_one <> "']")
+    |> click
+    
+    find_element(:css, "#start_time_minute option[value='" <> argument_one <> "']")
+    |> click
     {:ok, state}
   end
     
   and_ ~r/^I click submit booking$/, fn state ->
+    click({:id, "submit_booking"})
     {:ok, state}
   end
 
-  and_ ~r/^I enter my end time as "(?<argument_one>[^"]+)"$/,
-  fn state, %{argument_one: _argument_one} ->
+  and_ ~r/^I enter my end time as "(?<argument_one>[^"]+)":"(?<argument_two>[^"]+)"$/,
+  fn state, %{argument_one: argument_one, argument_two: argument_two} ->
+    find_element(:css, "#leaving_time_hour option[value='" <> argument_one <> "']")
+    |> click
+    
+    find_element(:css, "#leaving_time_minute option[value='" <> argument_two <> "']")
+    |> click
     {:ok, state}
   end
 
   then_ ~r/^I get a confirmation message$/, fn state ->
+    assert visible_in_page? ~r/Booking created successfully/
     {:ok, state}
   end
   
