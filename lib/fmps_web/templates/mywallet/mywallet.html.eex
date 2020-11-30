@@ -1,1 +1,16 @@
-Hello!
+<%= form_for @changeset, Routes.mywallet_path(@conn, :update, @user), fn user -> %>
+  <label>
+    Balance 
+  </label>
+  <p id="balance"><%= @user.balance %></p>
+
+  <label>
+    Input money
+  </label>
+
+  <input name="input_money" id="input_money"/>
+
+  <%= submit "Add", id: "add" %>
+<% end %>
+
+

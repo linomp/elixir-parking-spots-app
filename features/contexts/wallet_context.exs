@@ -40,13 +40,13 @@ defmodule WalletContext do
     {:ok, state}
   end
 
-  and_ ~r/^I see current amount of money in my wallet 0.0$/, fn state ->
-    visible_in_element?({:id, "current_amount"}, ~r/0.0/iu)
+  and_ ~r/^I see balance in my wallet 0.0$/, fn state ->
+    visible_in_element?({:id, "balance"}, ~r/0.0/iu)
     {:ok, state}
   end
 
-  and_ ~r/^I input amount of money 120.0$/, fn state ->
-    fill_field({:id, "input_money"}, "120.0")
+  and_ ~r/^I input amount of money 125.0$/, fn state ->
+    fill_field({:id, "input_money"}, "125.0")
     {:ok, state}
   end
 
@@ -55,8 +55,8 @@ defmodule WalletContext do
     {:ok, state}
   end
 
-  then_ ~r/^my current amount of money should be updated to 120.0$/, fn state ->
-    visible_in_element?({:id, "current_amount"}, ~r/120.0/iu)
+  then_ ~r/^my balance should be updated to 125.0$/, fn state ->
+    visible_in_element?({:id, "balance"}, ~r/125.0/iu)
     {:ok, state}
   end
 

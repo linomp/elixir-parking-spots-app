@@ -8,12 +8,13 @@ defmodule Fmps.Accounts.User do
     field :name, :string
     field :password, :string, virtual: true
     field :hashed_password, :string
+    field :balance, :float, default: 0.0
     timestamps()
     end
 
     def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :licence_number, :email, :password])
+    |> cast(params, [:name, :licence_number, :email, :password, :balance])
     |> validate_required([:name, :licence_number, :email, :password])
     |> unique_constraint(:email)
     |> validate_format(:email, ~r/@/)
