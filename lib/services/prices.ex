@@ -1,11 +1,8 @@
 defmodule Fmps.Prices do
 
   def convertRealTimeRate(rate) do
-    #cents/5min  to cents/min  to eur/hour
-    # IO.inspect rate * 12 / 100
     rate * 12 / 100
   end
-
 
   def getParkingSpotsWithPrices(timeInParkingSpot, parkingSpots) do
     parkingSpots |> Enum.map(

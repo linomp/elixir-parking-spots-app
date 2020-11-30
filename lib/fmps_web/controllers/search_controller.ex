@@ -7,14 +7,11 @@ defmodule FmpsWeb.SearchController do
   def index(conn, _params) do
     parkingSpots = Repo.all(ParkingSpot) |> Repo.preload(:parking_category)
 
-    # IO.inspect(parkingSpots)
     render(conn, "index.html", parkingSpots: parkingSpots, processedResults: false)
   end
 
   def create(conn, params) do
     address = params["address"]
-    # IO.inspect(params)
-
 
     rawParkingSpots = Repo.all(ParkingSpot) |> Repo.preload(:parking_category)
 
@@ -22,9 +19,7 @@ defmodule FmpsWeb.SearchController do
 
     if (Fmps.Prices.isValid(params["leavingTime"])) do
       {_ , leavingTime} = Time.from_iso8601(params["leavingTime"]<>":00")
-      # IO.inspect(leavingTime)
       leavingTime = Time.add(leavingTime, -2*3600)  # TODO: fix some day
-      # IO.inspect(leavingTime)
 
       timeInParkingSpot = Time.diff(leavingTime, Time.utc_now, :second) / 3600
       parkingSpotsWithPrices =  Fmps.Prices.getParkingSpotsWithPrices(timeInParkingSpot, parkingSpotsWithDistances)

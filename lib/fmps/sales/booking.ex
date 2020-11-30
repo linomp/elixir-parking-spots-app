@@ -21,19 +21,18 @@ defmodule Fmps.Sales.Booking do
     |> validate_hours(:start_time, :leaving_time, "Leaving time must be later than start time")
   end
 
-  def validate_hours(changeset, field1, field2, msg) do
-    value1 = get_field(changeset, field1)
-    value2 = get_field(changeset, field2)
-    IO.inspect "**** BOOKING SCHEMA VALIDATION ****"
-    IO.inspect value1
-    IO.inspect value2
+  def validate_hours(changeset, startField, leavingField, msg) do
+    start = get_field(changeset, startField)
+    leaving = get_field(changeset, leavingField)
 
-    #case value1 == value2 do
-    #  true -> add_error(changeset, field1, msg) |> add_error(field2, msg)
-    #  _ -> changeset
-    #end
-
-    changeset
+    try do
+      case Time.compare(leaving, start) do
+        :gt -> changeset # only leaving > start is valid
+        _ -> add_error(changeset, leavingField, msg)
+      end
+    rescue
+      _ -> changeset
+    end
 
   end
 

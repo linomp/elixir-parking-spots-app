@@ -65,7 +65,7 @@ defmodule FmpsWeb.BookingControllerTest do
     |> recycle
   end
 
-  @create_attrs %{is_hourly: true, leaving_time: ~T[14:00:00], start_time: ~T[14:00:00]}
+  @create_attrs %{is_hourly: true, leaving_time: ~T[15:00:00], start_time: ~T[14:00:00]}
   @update_attrs %{is_hourly: false, leaving_time: ~T[15:01:01], start_time: ~T[15:01:01]}
   @invalid_attrs %{is_hourly: nil, leaving_time: nil, start_time: nil}
   @invalid_hours_attrs %{is_hourly: true, leaving_time: ~T[13:01:01], start_time: ~T[15:01:01]}
@@ -83,23 +83,20 @@ defmodule FmpsWeb.BookingControllerTest do
   describe "Booking" do
     test "Creates a valid booking", %{conn: conn} do
 
-      conn = post conn, "/booking", @create_attrs
+      conn = post conn, "/booking", %{"booking"=>@create_attrs}
       conn = get(conn, redirected_to(conn))
 
-      # Should display names of close locations
       assert html_response(conn, 200) =~ ~r/Booking created successfully/
     end
 
     test "Shows error message on invalid booking", %{conn: conn} do
 
-      conn = post conn, "/booking", @invalid_hours_attrs
-      conn = get(conn, redirected_to(conn))
+      conn = post conn, "/booking", %{"booking"=>@invalid_hours_attrs}
+      #conn = get(conn, redirected_to(conn))
 
-      # Should display names of close locations
       assert html_response(conn, 200) =~ ~r/Leaving time must be later than start time/
     end
   end
-
 
 
 end
