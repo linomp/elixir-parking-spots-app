@@ -8,6 +8,9 @@ defmodule Fmps.Accounts.User do
     field :name, :string
     field :password, :string, virtual: true
     field :hashed_password, :string
+
+    has_many :bookings, Fmps.Sales.Booking
+
     timestamps()
     end
 

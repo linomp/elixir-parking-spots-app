@@ -7,6 +7,9 @@ defmodule Fmps.Sales.Booking do
     field :leaving_time, :time
     field :start_time, :time
 
+    belongs_to :parking_spot, Fmps.Parking.ParkingSpot
+    belongs_to :user, Fmps.Accounts.User
+    
     timestamps()
   end
 
