@@ -14,7 +14,7 @@ defmodule FmpsWeb.MywalletController do
     def update(conn, %{"input_money" => input_money}) do
       
       user = Fmps.Authentication.load_current_user(conn)
-      changeset = Changeset.change(user, %{balance: user.balance + String.to_float(input_money)})
+      changeset = Changeset.change(user, %{balance: user.balance + elem(Float.parse(input_money),0)})
       newData = changeset |> Repo.update!()
       IO.inspect newData
       render(conn, "mywallet.html", user: newData, changeset: changeset)
