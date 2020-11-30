@@ -18,10 +18,10 @@ defmodule FmpsWeb.BookingController do
 
   def create(conn, %{"booking" => booking_params}) do
     case Sales.create_booking(booking_params) do
-      {:ok, booking} ->
+      {:ok, _booking} ->
         conn
         |> put_flash(:info, "Booking created successfully.")
-        |> redirect(to: Routes.booking_path(conn, :show, booking))
+        |> redirect(to: Routes.search_path(conn, :index))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)

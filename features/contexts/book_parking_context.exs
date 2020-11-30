@@ -74,7 +74,7 @@ defmodule BookParkingContext do
     navigate_to "/search"
     {:ok, state}
   end
-  
+
   and_ ~r/^click on a parking lot to be navigated to booking page$/, fn state ->
     click({:id, "Peetri 57-59"})
     :timer.sleep(1000)
@@ -83,8 +83,7 @@ defmodule BookParkingContext do
 
   and_ ~r/^I pick real-time payment$/, fn state ->
     click({:id, "is_real_time"})
-    # uncheck hourly
-    click({:id, "is_hourly"})
+    # hourly is unchecked automatically
     {:ok, state}
   end
 
@@ -97,12 +96,12 @@ defmodule BookParkingContext do
   fn state, %{argument_one: argument_one, argument_two: argument_two} ->
     find_element(:css, "#start_time_hour option[value='" <> argument_one <> "']")
     |> click
-    
-    find_element(:css, "#start_time_minute option[value='" <> argument_one <> "']")
+
+    find_element(:css, "#start_time_minute option[value='" <> argument_two <> "']")
     |> click
     {:ok, state}
   end
-    
+
   and_ ~r/^I click submit booking$/, fn state ->
     click({:id, "submit_booking"})
     {:ok, state}
@@ -112,7 +111,7 @@ defmodule BookParkingContext do
   fn state, %{argument_one: argument_one, argument_two: argument_two} ->
     find_element(:css, "#leaving_time_hour option[value='" <> argument_one <> "']")
     |> click
-    
+
     find_element(:css, "#leaving_time_minute option[value='" <> argument_two <> "']")
     |> click
     {:ok, state}
@@ -122,5 +121,5 @@ defmodule BookParkingContext do
     assert visible_in_page? ~r/Booking created successfully/
     {:ok, state}
   end
-  
+
 end
