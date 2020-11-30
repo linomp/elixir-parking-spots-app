@@ -7,6 +7,7 @@ defmodule Fmps.Sales do
   alias Fmps.Repo
 
   alias Fmps.Sales.Booking
+  alias Ecto.{Multi, Changeset}
 
   @doc """
   Returns the list of bookings.
@@ -50,9 +51,24 @@ defmodule Fmps.Sales do
 
   """
   def create_booking(attrs \\ %{}) do
-    %Booking{}
-    |> Booking.changeset(attrs)
-    |> Repo.insert()
+
+    changeset = %Booking{} |> Booking.changeset(attrs["bookingParams"])
+
+    case Ecto.Changeset.apply_action(changeset, :update) do
+      {:ok, booking} ->
+        Multi.new
+        |> Multi.insert(:booking, changeset
+          |> Changeset.put_change(:user_id, attrs["user"].id)
+          |> Changeset.put_change(:parking_spot_id, attrs["parkingSpot"].id)
+        )
+        |> Repo.transaction
+        {:ok, booking}
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:error, changeset}
+
+    end
+
   end
 
   @doc """

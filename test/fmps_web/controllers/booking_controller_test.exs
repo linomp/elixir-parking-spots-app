@@ -4,6 +4,8 @@ defmodule FmpsWeb.BookingControllerTest do
   alias Fmps.Sales
 
   alias Fmps.{Repo, Accounts.User, Parking.ParkingCategory}
+
+  alias Fmps.Parking.{ParkingSpot}
   alias Fmps.Guardian
 
   setup do
@@ -83,6 +85,9 @@ defmodule FmpsWeb.BookingControllerTest do
   describe "Booking" do
     test "Creates a valid booking", %{conn: conn} do
 
+      [firstLot | _] = Repo.all(ParkingSpot)
+
+      conn = get conn, "/booking/#{firstLot.id}"
       conn = post conn, "/booking", %{"booking"=>@create_attrs}
       conn = get(conn, redirected_to(conn))
 
@@ -91,6 +96,9 @@ defmodule FmpsWeb.BookingControllerTest do
 
     test "Shows error message on invalid booking", %{conn: conn} do
 
+      [firstLot | _] = Repo.all(ParkingSpot)
+
+      conn = get conn, "/booking/#{firstLot.id}"
       conn = post conn, "/booking", %{"booking"=>@invalid_hours_attrs}
       #conn = get(conn, redirected_to(conn))
 
