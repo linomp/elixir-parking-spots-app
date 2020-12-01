@@ -1,8 +1,6 @@
 defmodule FmpsWeb.UserControllerTest do
   use FmpsWeb.ConnCase
 
-  alias Fmps.Accounts
-
   @valid_user %{
     password: "parool",
     name: "Tom Collings",

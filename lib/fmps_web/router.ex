@@ -37,6 +37,7 @@ defmodule FmpsWeb.Router do
     pipe_through [:browser, :browser_auth, :ensure_auth]
     resources "/search", SearchController
     resources "/mywallet", MywalletController
+    resources "/booking", BookingController
   end
 
 

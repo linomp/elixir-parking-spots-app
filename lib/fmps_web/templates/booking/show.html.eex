@@ -1,0 +1,23 @@
+<h1>Show Booking</h1>
+
+<ul>
+
+  <li>
+    <strong>Is hourly:</strong>
+    <%= @booking.is_hourly %>
+  </li>
+
+  <li>
+    <strong>Start time:</strong>
+    <%= @booking.start_time %>
+  </li>
+
+  <li>
+    <strong>Leaving time:</strong>
+    <%= @booking.leaving_time %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.booking_path(@conn, :edit, @booking) %></span>
+<span><%= link "Back", to: Routes.booking_path(@conn, :index) %></span>

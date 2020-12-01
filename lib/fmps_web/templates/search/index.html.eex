@@ -1,13 +1,29 @@
-
-<h1>Type your destination</h1>
+<h1 id="destination-label">Type your destination</h1>
 
  <%= form_tag("/search", method: :post) %>
   <input name="address" type="text" id="address"/>
   <label for="leavingTime">Intended Leaving Time (optional):</label>
-  <input name="leavingTime" type="time" min="00:00" max="23:59" id="leavingTime"/>
+  <input name="leavingTime" type="text" placeholder="HH:MM" id="leavingTime"/>
   <br />
-  <button id="search">Search</button>
+  <%= button("Reset", to: "/search",  method: :get) %>
+  <button id="search" type="submit">Search</button>
+
 </form>
+
+
+<%= if !(@address=="--") do%>
+  <hr>
+  <h2>
+    Spots near  <%= @address %>
+  </h2>
+<% end %>
+
+<%= if !(@timeInParkingSpot=="--") do%>
+  <p>
+    Booking duration: <%= @timeInParkingSpot %>
+  </p>
+<% end %>
+
 
 
 <br/>
@@ -32,6 +48,8 @@
               <th>Price (Real-Time)</th>
           <% end %>
 
+          <th>Book</th>
+
         </tr>
       </thead>
       <tbody>
@@ -47,6 +65,7 @@
               <td><%= round(elem(spotTuple, 1).travelDuration) %></td>
               <td class="estimated-for-hour"> <%= elem(spotTuple, 2).priceIfHour %></td>
               <td class="estimated-for-real-time"> <%= elem(spotTuple, 2).priceIfRealTime %> </td>
+              <td><%= button "Book", method: :get, to: Routes.booking_path(@conn, :show, elem(spotTuple, 0)), id: elem(spotTuple, 0).address %></td>
             </tr>
         <% end %>
       <% else %>
@@ -56,6 +75,7 @@
               <td><%= spot.parking_category.name %></td>
               <td><%= spot.parking_category.hourly_rate %></td>
               <td><%= spot.parking_category.real_time_rate %></td>
+              <td><%= button "Book", method: :get, to: Routes.booking_path(@conn, :show, spot), id: spot.address %></td>
             </tr>
         <% end %>
       <% end %>
