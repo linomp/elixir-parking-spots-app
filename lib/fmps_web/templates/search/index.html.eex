@@ -1,13 +1,29 @@
-
-<h1>Type your destination</h1>
+<h1 id="destination-label">Type your destination</h1>
 
  <%= form_tag("/search", method: :post) %>
   <input name="address" type="text" id="address"/>
   <label for="leavingTime">Intended Leaving Time (optional):</label>
   <input name="leavingTime" type="text" placeholder="HH:MM" id="leavingTime"/>
   <br />
-  <button id="search">Search</button>
+  <%= button("Reset", to: "/search",  method: :get) %>
+  <button id="search" type="submit">Search</button>
+
 </form>
+
+
+<%= if !(@address=="--") do%>
+  <hr>
+  <h2>
+    Spots near  <%= @address %>
+  </h2>
+<% end %>
+
+<%= if !(@timeInParkingSpot=="--") do%>
+  <p>
+    Booking duration: <%= @timeInParkingSpot %>
+  </p>
+<% end %>
+
 
 
 <br/>
@@ -31,7 +47,7 @@
               <th>Price (Hourly)</th>
               <th>Price (Real-Time)</th>
           <% end %>
-          
+
           <th>Book</th>
 
         </tr>
