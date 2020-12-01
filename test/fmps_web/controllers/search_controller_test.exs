@@ -102,16 +102,47 @@ defmodule FmpsWeb.SearchControllerTest do
     end
   end
 
-  @tag :skip
   describe "Parking spot search with intended leaving hour" do
     test "Returns places within an arbitrary radius + estimated prices", %{conn: conn} do
-
-      currentTime = Time.utc_now()
 
       conn =
         post conn, "/search", %{
           address: "Narva maantee 18, 51009 Tartu",
-          leavingTime: Time.add(currentTime, (2*3600 + 2*3600), :second) |> Time.to_iso8601(:extended) |> String.slice(0..4)
+          leavingTime: "16:00",
+          currentTime: ~T[14:00:00]
+        }
+
+
+      # Should display names of close locations
+      assert html_response(conn, 200) =~ ~r/Ujula Konsum/
+      assert html_response(conn, 200) =~ ~r/Neste/
+
+      # Ujula Konsum estimations
+      html_response(conn, 200)
+      |> assert_select("td.estimated-for-hour", match:  ~r/"estimated-for-hour\"> 4/) # hour  (zone A hourly * hours of stay)
+
+      html_response(conn, 200)
+      |> assert_select("td.estimated-for-real-time", match: ~r/"estimated-for-real-time\"> 3.8/)
+
+      #Neste estimations
+      html_response(conn, 200)
+      |> assert_select("td.estimated-for-hour", match:  ~r/"estimated-for-hour\"> 2/) # hour  (zone A hourly * hours of stay)
+
+      html_response(conn, 200)
+      |> assert_select("td.estimated-for-real-time", match: ~r/"estimated-for-real-time\"> 1.9/)
+
+      # Should not display names of far locations
+      refute html_response(conn, 200) =~ ~r/Tartu Train Station/
+      refute html_response(conn, 200) =~ ~r/Tartu Hospital/
+    end
+
+    test "Handles hours around the clock", %{conn: conn} do
+
+      conn =
+        post conn, "/search", %{
+          address: "Narva maantee 18, 51009 Tartu",
+          leavingTime: "01:00",
+          currentTime: ~T[23:00:00]
         }
 
 

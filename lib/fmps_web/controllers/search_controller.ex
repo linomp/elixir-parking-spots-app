@@ -9,7 +9,22 @@ defmodule FmpsWeb.SearchController do
     |> Repo.preload(:parking_category)
     |> Enum.filter(fn spot -> spot.is_available end)
 
-    render(conn, "index.html", parkingSpots: parkingSpots, processedResults: false)
+    render(conn, "index.html", parkingSpots: parkingSpots, address: "--", timeInParkingSpot: "--", processedResults: false)
+  end
+
+  def enhancedTimeDiff(time_1, time_2) do
+    simpleDiff =  Time.diff(time_1, time_2, :second) / 3600
+    if simpleDiff <= 0 do
+      simpleDiff + 24
+    else
+      simpleDiff
+    end
+  end
+
+  def formatDuration(rawDuration) do
+    hours = trunc(rawDuration)
+    mins = (rawDuration - hours) * 59
+    "#{hours}h#{ceil(mins) |> Integer.to_string |> String.pad_leading(2, "0")}"
   end
 
   def create(conn, params) do
@@ -24,16 +39,21 @@ defmodule FmpsWeb.SearchController do
 
     if (Fmps.Prices.isValid(params["leavingTime"])) do
       {_ , leavingTime} = Time.from_iso8601(params["leavingTime"]<>":00")
-      leavingTime = Time.add(leavingTime, -2*3600)  # TODO: fix some day
 
-      timeInParkingSpot = Time.diff(leavingTime, Time.utc_now, :second) / 3600
+      timeInParkingSpot = if (is_nil(Map.get(params, "currentTime"))) do
+                            currentTimeInEstonia = Time.add(Time.utc_now(), 2*3600)  # TODO: fix some day
+                            enhancedTimeDiff(leavingTime, currentTimeInEstonia)
+                          else
+                            enhancedTimeDiff(leavingTime, Map.get(params, "currentTime"))
+                          end
+
       parkingSpotsWithPrices =  Fmps.Prices.getParkingSpotsWithPrices(timeInParkingSpot, parkingSpotsWithDistances)
-      render(conn, "index.html", parkingSpots: parkingSpotsWithPrices, processedResults: true)
+      render(conn, "index.html", parkingSpots: parkingSpotsWithPrices, address: address, timeInParkingSpot: formatDuration(timeInParkingSpot), processedResults: true)
     else
       render(conn, "index.html", parkingSpots: parkingSpotsWithDistances |> Enum.map(
         fn spotTuple ->
           {elem(spotTuple, 0), elem(spotTuple, 1), %{:priceIfHour=>"--", :priceIfRealTime=>"--"}}
-        end), processedResults: true)
+        end), address: address, timeInParkingSpot: "--" , processedResults: true)
     end
   end
 
