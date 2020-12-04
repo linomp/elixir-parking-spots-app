@@ -2,13 +2,8 @@
   <label>
     Settings
   </label>
-  <p id="balance"><%= @user.balance %></p>
 
-  <label>
-    Input money
-  </label>
-
-  <input name="input_money" id="input_money"/>
-
-  <%= submit "Add", id: "add" %>
+  <input checked="checked" name="is_monthly_payment_name" id="is_monthly_payment_id" type="checkbox" value="true"/>
+  Is monthly payment
+  <%= submit "Update", id: "submit_settings" %>
 <% end %>
