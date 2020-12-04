@@ -31,10 +31,13 @@ defmodule FmpsWeb.SettingsControllerTest do
       |> recycle
   end
 
-  # describe "update settings" do
-  #     test "set to monthly payment type", %{conn: conn} do
-  #       conn = put(conn, Routes.settings_path(conn, :update, 0), set_payment_method: @valid_input)
-  #       assert html_response(conn, 200) =~ ~r/12.0/
-  #     end
-  # end
+  describe "update settings" do
+      test "set to monthly payment type", %{conn: conn} do
+        conn = put(conn, Routes.settings_path(conn, :update, 0), %{"is_monthly_payment_name" => false})
+        conn = get conn, redirected_to(conn)
+        assert html_response(conn, 200) =~ ~r/Payment method successfully updated/
+        html_response(conn, 200)
+        |> assert_select("input#is_monthly_payment_id:checked", count: 1)
+      end
+  end
 end
