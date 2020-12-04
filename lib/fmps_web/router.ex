@@ -38,6 +38,7 @@ defmodule FmpsWeb.Router do
     resources "/search", SearchController
     resources "/mywallet", MywalletController
     resources "/booking", BookingController
+    resources "/settings", SettingsController
   end
 
 
