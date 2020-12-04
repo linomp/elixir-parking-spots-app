@@ -14,7 +14,7 @@ defmodule FmpsWeb.SettingsController do
     user = Fmps.Authentication.load_current_user(conn)
 
     try do
-      changeset = Changeset.change(user, %{is_monthly_payment: userParams["is_monthly_payment"] })
+      changeset = Changeset.change(user, %{is_monthly_payment: userParams["is_monthly_payment"] == "true" })
       changeset |> Repo.update!()
       conn
         |> put_flash(:info, "Payment method successfully updated")
