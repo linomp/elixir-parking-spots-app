@@ -14,6 +14,7 @@
         <ul>
         <li><%= link "Search for parking spots", to: Routes.search_path(@conn, :index)%></li>
         <li><%= link "My Wallet", to: Routes.mywallet_path(@conn, :index)%></li>
+        <li><%= link "Settings", to: Routes.settings_path(@conn, :index)%></li>
         <li><%= link "My Ongoing Booking", to: Routes.ongoing_booking_path(@conn, :index)%></li>
         </ul>
       </article>
