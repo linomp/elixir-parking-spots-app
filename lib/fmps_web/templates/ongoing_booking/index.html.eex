@@ -1,0 +1,37 @@
+
+<%= if (@ongoingExists) do%>
+
+  <%= if !(@isHourly) do%>
+    <hr>
+    <h2>
+      <%= "Ongoing real-time booking at #{@address}" %>
+    </h2>
+
+  <%= form_tag("/ongoing-booking", method: :post) %>
+    <button id="pay-real-time" type="submit">Pay</button>
+  </form>
+
+  <% end %>
+
+  <%= if (@isHourly) do%>
+    <hr>
+    <h2>
+      Ongoing hourly booking
+    </h2>
+
+  <%= form_tag("/ongoing-booking", method: :post) %>
+    <button id="extend-hourly" type="submit">Extend</button>
+  </form>
+
+  <% end %>
+
+<% else %>
+
+    <hr>
+    <h2>
+      There's currently no ongoing booking
+    </h2>
+
+<% end %>
+
+<br/>
