@@ -10,13 +10,16 @@ defmodule Fmps.Sales.Booking do
     belongs_to :parking_spot, Fmps.Parking.ParkingSpot
     belongs_to :user, Fmps.Accounts.User
 
+    
+    field :is_finished, :boolean, default: false
+
     timestamps()
   end
 
   @doc false
   def changeset(booking, attrs) do
     booking
-    |> cast(attrs, [:is_hourly, :start_time, :leaving_time])
+    |> cast(attrs, [:is_hourly, :start_time, :leaving_time, :is_finished])
     |> validate_required([:is_hourly, :start_time])
     |> validate_hours(:start_time, :leaving_time, "Leaving time must be later than start time")
   end

@@ -36,6 +36,7 @@ defmodule FmpsWeb.Router do
   scope "/", FmpsWeb do
     pipe_through [:browser, :browser_auth, :ensure_auth]
     resources "/search", SearchController
+    resources "/ongoing-booking", OngoingBookingController
     resources "/mywallet", MywalletController
     resources "/booking", BookingController
     resources "/settings", SettingsController

@@ -25,4 +25,8 @@ defmodule WhiteBreadConfig do
         context:       SettingsContext,
         feature_paths: ["features/settings.feature"]
 
+  suite name:          "Billing for booking",
+        context:       BillingContext,
+        feature_paths: ["features/billing.feature"]
+
 end

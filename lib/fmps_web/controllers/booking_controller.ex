@@ -29,7 +29,7 @@ defmodule FmpsWeb.BookingController do
 
         conn
         |> put_flash(:info, "Booking created successfully.")
-        |> redirect(to: Routes.search_path(conn, :index))
+        |> redirect(to: Routes.ongoing_booking_path(conn, :index))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>parkingSpot.address})
