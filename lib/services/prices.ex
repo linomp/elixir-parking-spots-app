@@ -20,6 +20,17 @@ defmodule Fmps.Prices do
     )
   end
 
+  def getParkingSpotPrices(time, parkingCategory) do
+      priceIfHour = Float.ceil(time) * parkingCategory.hourly_rate
+      priceIfRealTime = time *  convertRealTimeRate( parkingCategory.real_time_rate )
+
+      if priceIfHour > 0 and priceIfRealTime > 0 do
+        %{:priceIfHour=>priceIfHour, :priceIfRealTime=>Float.ceil(priceIfRealTime, 2)}
+      else
+        %{:priceIfHour=>0, :priceIfRealTime=>0}
+      end
+  end
+
   @spec isValid(any) :: boolean
   def isValid(time) do
     String.match?(time, ~r/^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/) and String.length(time) == 5

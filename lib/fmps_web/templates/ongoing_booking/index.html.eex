@@ -4,7 +4,7 @@
   <%= if !(@isHourly) do%>
     <hr>
     <h2>
-      Ongoing real-time booking
+      <%= "Ongoing real-time booking at #{@address}" %>
     </h2>
 
   <%= form_tag("/ongoing-booking", method: :post) %>
