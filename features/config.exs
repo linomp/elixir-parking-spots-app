@@ -15,11 +15,15 @@ defmodule WhiteBreadConfig do
 
   suite name:          "Wallet",
         context:       WalletContext,
-        feature_paths: ["features/wallet.feature"]  
-            
+        feature_paths: ["features/wallet.feature"]
+
   suite name:          "Book Parking Lots",
         context:       BookParkingContext,
         feature_paths: ["features/book_parking.feature"]
+
+  suite name:          "Update payment method",
+        context:       SettingsContext,
+        feature_paths: ["features/settings.feature"]
 
   suite name:          "Billing for booking",
         context:       BillingContext,
