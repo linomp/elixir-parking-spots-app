@@ -90,22 +90,51 @@ defmodule FmpsWeb.OngoingBookingControllerTest do
 
   @create_attrs %{is_hourly: false, leaving_time: nil, start_time: ~T[14:00:00]}
 
+  @valid_input("10")
+
   describe "Payment for parking booking" do
-    test "balance of the user is updated correctly after payment", %{conn: conn} do
+    test "payment is rejected if there's not enough balance", %{conn: conn} do
 
+      # book a parking spot
       parkingLot = Repo.get_by(ParkingSpot, name: "Neste")
-
       conn = get conn, "/booking/#{parkingLot.id}"
       conn = post conn, "/booking", %{"booking"=>@create_attrs}
-
-      conn = put(conn, Routes.mywallet_path(conn, :update, 0), input_money: 500)
 
       conn =
       post conn, "/ongoing-booking", %{
         currentTime: ~T[15:00:00]
       }
 
+      # navigate to wallet page to input money to wallet
+      assert "/mywallet" = redir_path = redirected_to(conn, 302)
+      conn = get(recycle(conn), redir_path)
+      assert html_response(conn, 200) =~ ~r/Not enough balance/
+
+    end
+
+    
+    test "balance of the user is updated correctly after payment", %{conn: conn} do
+
+      # put money into wallet
+      conn = put(conn, Routes.mywallet_path(conn, :update, 0), input_money: @valid_input)
+
+      # book a parking spot
+      parkingLot = Repo.get_by(ParkingSpot, name: "Neste")
+      conn = get conn, "/booking/#{parkingLot.id}"
+      conn = post conn, "/booking", %{"booking"=>@create_attrs}
+
+      conn =
+      post conn, "/ongoing-booking", %{
+        currentTime: ~T[15:00:00]
+      }
+
+      # navigate to home page after finishing the booking payment
+      assert "/" = redir_path = redirected_to(conn, 302)
+      conn = get(recycle(conn), redir_path)
       assert html_response(conn, 200) =~ ~r/Payment successfully done/
+
+      conn = get conn, "/mywallet"
+      assert html_response(conn, 200) =~ ~r/<p id=\"balance\">9.04<\/p>/
 
     end
   end
