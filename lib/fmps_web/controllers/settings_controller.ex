@@ -12,27 +12,17 @@ defmodule FmpsWeb.SettingsController do
 
   def update(conn, payment_params) do
     user = Fmps.Authentication.load_current_user(conn)
-    IO.inspect("test")
-    IO.inspect(payment_params)
-    conn
-      |> put_flash(:info, "Payment method successfully updated")
-      |> redirect(to: Routes.settings_path(conn, :index))
 
-    # try do
-    #     elemPaymentMethod = elem(Float.parse(set_payment_method),0)
-    #     if is_number(elemPaymentMethod) && elemPaymentMethod>0 do
-    #       changeset = Changeset.change(user, %{is_monthly_payment: user.is_monthly_payment })
-    #       newData = changeset |> Repo.update!()
-    #       render(conn, "settings.html", user: newData, changeset: changeset)
-    #     else
-    #       conn
-    #       |> put_flash(:info, "Invalid input")
-    #       |> redirect(to: Routes.settings_path(conn, :index))
-    #     end
-    #   rescue
-    #     _ -> conn
-    #          |> put_flash(:info, "Invalid input")
-    #          |> redirect(to: Routes.settings_path(conn, :index))
-    # end
+    try do
+      changeset = Changeset.change(user, %{is_monthly_payment: payment_params["is_monthly_payment_name"] })
+      newData = changeset |> Repo.update!()
+      conn
+        |> put_flash(:info, "Payment method successfully updated")
+        |> redirect(to: Routes.settings_path(conn, :index))
+      rescue
+        _ -> conn
+             |> put_flash(:info, "Something went wrong")
+             |> redirect(to: Routes.settings_path(conn, :index))
+    end
   end
 end

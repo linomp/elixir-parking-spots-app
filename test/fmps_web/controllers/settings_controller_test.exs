@@ -33,7 +33,7 @@ defmodule FmpsWeb.SettingsControllerTest do
 
   describe "update settings" do
       test "set to monthly payment type", %{conn: conn} do
-        conn = put(conn, Routes.settings_path(conn, :update, 0), %{"is_monthly_payment_name" => false})
+        conn = put(conn, Routes.settings_path(conn, :update, 0), %{"is_monthly_payment_name" => true})
         conn = get conn, redirected_to(conn)
         assert html_response(conn, 200) =~ ~r/Payment method successfully updated/
         html_response(conn, 200)

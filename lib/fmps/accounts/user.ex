@@ -9,6 +9,7 @@ defmodule Fmps.Accounts.User do
     field :password, :string, virtual: true
     field :hashed_password, :string
     field :balance, :float, default: 0.0
+    field :is_monthly_payment, :boolean, default: false
 
     has_many :bookings, Fmps.Sales.Booking
 
@@ -17,7 +18,7 @@ defmodule Fmps.Accounts.User do
 
     def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:name, :licence_number, :email, :password, :balance])
+    |> cast(params, [:name, :licence_number, :email, :password, :balance, :is_monthly_payment])
     |> validate_required([:name, :licence_number, :email, :password])
     |> unique_constraint(:email)
     |> validate_format(:email, ~r/@/)
