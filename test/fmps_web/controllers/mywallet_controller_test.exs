@@ -4,7 +4,7 @@ defmodule FmpsWeb.MywalletControllerTest do
 
     alias Fmps.{Repo, Accounts.User}
     alias Fmps.Guardian
-    
+
     setup do
       user =
         Repo.insert!(%User{
@@ -18,9 +18,8 @@ defmodule FmpsWeb.MywalletControllerTest do
     end
 
     @valid_input("12")
-
     @invalid_input("-1")
-    @input_input1("abc")
+    @invalid_input1("abc")
 
     def guardian_login(user) do
         build_conn()
@@ -33,11 +32,11 @@ defmodule FmpsWeb.MywalletControllerTest do
     end
 
     describe "money input" do
-        test "Adds money to balance", %{conn: conn} do 
+        test "Adds money to balance", %{conn: conn} do
           conn = put(conn, Routes.mywallet_path(conn, :update, 0), input_money: @valid_input)
           assert html_response(conn, 200) =~ ~r/12.0/
         end
-    
+
         test "returns error in case of negative input ", %{conn: conn} do
             conn = put(conn, Routes.mywallet_path(conn, :update, 0), input_money: @invalid_input)
             conn = get conn, redirected_to(conn)
@@ -51,4 +50,3 @@ defmodule FmpsWeb.MywalletControllerTest do
         end
     end
 end
-    

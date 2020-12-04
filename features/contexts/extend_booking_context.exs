@@ -1,8 +1,9 @@
-defmodule BillingContext do
+defmodule ExtendBookingContext do
   use WhiteBread.Context
   use Hound.Helpers
+  import Hound.Matchers
 
-  alias Fmps.{Repo, Accounts.User, Parking.ParkingCategory}
+  alias Fmps.{Repo, Accounts.User}
 
   feature_starting_state fn  ->
     Application.ensure_all_started(:hound)
@@ -25,44 +26,8 @@ defmodule BillingContext do
     click({:id, "submit_login"})
     :timer.sleep(1000)
 
-
-    # Create parking spots
-    categoryA =
-      Repo.insert!(
-        ParkingCategory.changeset(%ParkingCategory{}, %{
-          name: "A",
-          hourly_rate: 2,
-          real_time_rate: 16
-        })
-      )
-
-      [
-        %{
-          name: "a1",
-          address: "Vaike-Turu 1",
-          latitude: 58.378163,
-          longitude: 26.733274,
-          city: "Tartu"
-        },
-        %{
-          name: "a3",
-          address: "Puiestee 110",
-          latitude: 58.386518,
-          longitude: 26.737152,
-          city: "Tartu"
-        },
-        %{
-          name: "a1",
-          address: "Peetri 57-59",
-          latitude: 58.388034,
-          longitude: 26.736930,
-          city: "Tartu"
-        }]
-        |> Enum.map(fn parkingSpotData -> Ecto.build_assoc(categoryA, :spots, parkingSpotData) end)
-        |> Enum.each(fn changeset -> Repo.insert!(changeset) end)
-
-
     %{}
+
   end
 
   scenario_finalize fn _status, _state ->
@@ -70,15 +35,16 @@ defmodule BillingContext do
     Hound.end_session
   end
 
-  given_ ~r/^I have created a real-time booking$/, fn state ->
+  given_ ~r/^I have created a hourly booking$/, fn state ->
     navigate_to "/search"
     click({:id, "Peetri 57-59"})
     :timer.sleep(1000)
-    click({:id, "is_real_time"})
+
     find_element(:css, "#start_time_hour option[value='12']")
     |> click
 
-    find_element(:css, "#start_time_minute option[value='12']")
+
+    find_element(:css, "#leaving_time_hour option[value='14']")
     |> click
 
     click({:id, "submit_booking"})
@@ -105,14 +71,27 @@ defmodule BillingContext do
     {:ok, state}
   end
 
-  and_ ~r/^click on button to pay for my ongoing real-time booking$/, fn state ->
-    click({:id, "pay-real-time"})
+  and_ ~r/^I click the Extend button$/, fn state ->
+    click({:id, "extend-hourly"})
+    {:ok, state}
+  end
+
+
+  and_ ~r/^enter a new leaving hour for my ongoing booking$/, fn state ->
+    find_element(:css, "#leaving_time_hour option[value='16']")
+    |> click
+
+    click({:id, "extend_booking"})
+
     {:ok, state}
   end
 
   then_ ~r/^I get a confirmation message$/, fn state ->
-    assert visible_in_page? ~r/Payment successfully done/
+
+    # TODO: find leaving time field with updated value
+
+    assert visible_in_page? ~r/Booking extended successfully/
+
     {:ok, state}
   end
-
 end

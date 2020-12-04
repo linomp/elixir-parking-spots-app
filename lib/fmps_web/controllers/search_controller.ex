@@ -12,15 +12,6 @@ defmodule FmpsWeb.SearchController do
     render(conn, "index.html", parkingSpots: parkingSpots, address: "--", timeInParkingSpot: "--", processedResults: false)
   end
 
-  def enhancedTimeDiff(time_1, time_2) do
-    simpleDiff =  Time.diff(time_1, time_2, :second) / 3600
-    if simpleDiff <= 0 do
-      simpleDiff + 24
-    else
-      simpleDiff
-    end
-  end
-
   def formatDuration(rawDuration) do
     hours = trunc(rawDuration)
     mins = (rawDuration - hours) * 59
@@ -42,9 +33,9 @@ defmodule FmpsWeb.SearchController do
 
       timeInParkingSpot = if (is_nil(Map.get(params, "currentTime"))) do
                             currentTimeInEstonia = Time.add(Time.utc_now(), 2*3600)  # TODO: fix some day
-                            enhancedTimeDiff(leavingTime, currentTimeInEstonia)
+                            Fmps.Prices.enhancedTimeDiff(leavingTime, currentTimeInEstonia)
                           else
-                            enhancedTimeDiff(leavingTime, Map.get(params, "currentTime"))
+                            Fmps.Prices.enhancedTimeDiff(leavingTime, Map.get(params, "currentTime"))
                           end
 
       parkingSpotsWithPrices =  Fmps.Prices.getParkingSpotsWithPrices(timeInParkingSpot, parkingSpotsWithDistances)

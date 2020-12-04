@@ -3,7 +3,7 @@ defmodule WalletContext do
   use Hound.Helpers
   import Hound.Matchers
 
-  alias Fmps.{Repo, Accounts.User, Parking.ParkingCategory}
+  alias Fmps.{Repo, Accounts.User}
 
   feature_starting_state fn  ->
     Application.ensure_all_started(:hound)
@@ -28,12 +28,12 @@ defmodule WalletContext do
 
     %{}
 
-  end 
+  end
 
   scenario_finalize fn _status, _state ->
     Ecto.Adapters.SQL.Sandbox.checkin(Fmps.Repo)
     Hound.end_session
-  end 
+  end
 
   when_ ~r/^I go to My Wallet page$/, fn state ->
     navigate_to("/mywallet")

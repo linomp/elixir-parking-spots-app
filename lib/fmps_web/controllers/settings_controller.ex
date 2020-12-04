@@ -2,7 +2,7 @@ defmodule FmpsWeb.SettingsController do
   use FmpsWeb, :controller
   alias Fmps.Repo
   alias Fmps.Accounts.User
-  alias Ecto.{Changeset, Multi}
+  alias Ecto.{Changeset}
 
   def index(conn, _params) do
     user = Fmps.Authentication.load_current_user(conn)

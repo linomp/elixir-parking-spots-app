@@ -82,8 +82,8 @@ defmodule FmpsWeb.BookingControllerTest do
   end
 
   @create_attrs %{is_hourly: true, leaving_time: ~T[15:00:00], start_time: ~T[14:00:00]}
-  @update_attrs %{is_hourly: false, leaving_time: ~T[15:01:01], start_time: ~T[15:01:01]}
-  @invalid_attrs %{is_hourly: nil, leaving_time: nil, start_time: nil}
+  #@update_attrs %{is_hourly: false, leaving_time: ~T[15:01:01], start_time: ~T[15:01:01]}
+  #@invalid_attrs %{is_hourly: nil, leaving_time: nil, start_time: nil}
   @invalid_hours_attrs %{is_hourly: true, leaving_time: ~T[13:01:01], start_time: ~T[15:01:01]}
 
   def fixture(:booking) do
@@ -91,10 +91,10 @@ defmodule FmpsWeb.BookingControllerTest do
     booking
   end
 
-  defp create_booking() do
-    booking = fixture(:booking)
-    %{booking: booking}
-  end
+  #defp create_booking() do
+  #  booking = fixture(:booking)
+  #  %{booking: booking}
+  #end
 
   describe "Booking" do
     test "Creates a valid booking", %{conn: conn} do

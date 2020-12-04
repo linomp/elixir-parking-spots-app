@@ -19,7 +19,7 @@
       Ongoing hourly booking
     </h2>
 
-  <%= form_tag("/ongoing-booking", method: :post) %>
+  <%= form_tag("/ongoing-booking", method: :put) %>
     <button id="extend-hourly" type="submit">Extend</button>
   </form>
 

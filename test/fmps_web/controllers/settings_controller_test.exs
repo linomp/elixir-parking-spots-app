@@ -17,10 +17,6 @@ defmodule FmpsWeb.SettingsControllerTest do
     {:ok, conn: conn}
   end
 
-  @valid_input("12")
-  @invalid_input("-1")
-  @input_input1("abc")
-
   def guardian_login(user) do
       build_conn()
       |> bypass_through(Takso.Router, [:browser, :browser_authenticated_session])
