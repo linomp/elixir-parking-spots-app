@@ -24,7 +24,7 @@ defmodule FmpsWeb.OngoingBookingController do
     
     if !booking.is_hourly do
       conn
-      |> put_flash(:info, "Pay")
+      |> put_flash(:info, "Payment successfully done")
       |> render("index.html", ongoingExists: true, isHourly: booking.is_hourly)
     else 
       conn
