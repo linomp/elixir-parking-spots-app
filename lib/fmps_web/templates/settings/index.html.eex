@@ -4,7 +4,7 @@
   </label>
 user
   <%# <input checked="checked" name="is_monthly_payment_name" id="is_monthly_payment_id" type="checkbox" value="user[is_monthly_payment]"/> %>
-  <%= checkbox(user, :is_monthly_payment, value: true,  id: "is_monthly_payment_id")%>
+  <%= checkbox(user, :is_monthly_payment, value: @user.is_monthly_payment, id: "is_monthly_payment_id")%>
   Is monthly payment
   <%= submit "Update", id: "submit_settings" %>
 <% end %>
