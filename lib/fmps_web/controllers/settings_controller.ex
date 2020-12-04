@@ -10,14 +10,12 @@ defmodule FmpsWeb.SettingsController do
     render(conn, "index.html", user: user, changeset: changeset)
   end
 
-  def update(conn, payment_params) do
+  def update(conn, %{"user" => userParams}) do
     user = Fmps.Authentication.load_current_user(conn)
 
-    IO.inspect(payment_params)
-
     try do
-      changeset = Changeset.change(user, %{is_monthly_payment: payment_params["is_monthly_payment"] })
-      newData = changeset |> Repo.update!()
+      changeset = Changeset.change(user, %{is_monthly_payment: userParams["is_monthly_payment"] == "true" })
+      changeset |> Repo.update!()
       conn
         |> put_flash(:info, "Payment method successfully updated")
         |> redirect(to: Routes.settings_path(conn, :index))
