@@ -4,6 +4,7 @@ defmodule ExtendBookingContext do
   import Hound.Matchers
 
   alias Fmps.{Repo, Accounts.User}
+  alias Fmps.Parking.{ParkingCategory}
 
   feature_starting_state fn  ->
     Application.ensure_all_started(:hound)
@@ -20,6 +21,28 @@ defmodule ExtendBookingContext do
     |> Enum.map(fn user_data -> User.changeset(%User{}, user_data) end)
     |> Enum.each(fn changeset -> Repo.insert!(changeset) end)
 
+
+    # Create parking spots
+    categoryA =
+      Repo.insert!(
+        ParkingCategory.changeset(%ParkingCategory{}, %{
+          name: "A",
+          hourly_rate: 2,
+          real_time_rate: 16
+        })
+      )
+
+      [
+        %{
+          name: "a1",
+          address: "EXAMPLE_ADDRESS",
+          latitude: 58.388034,
+          longitude: 26.736930,
+          city: "Tartu"
+        }]
+        |> Enum.map(fn parkingSpotData -> Ecto.build_assoc(categoryA, :spots, parkingSpotData) end)
+        |> Enum.each(fn changeset -> Repo.insert!(changeset) end)
+
     navigate_to "/sessions/new"
     fill_field({:id, "email"}, "anna.karenina@gmail.com")
     fill_field({:id, "password"}, "parool")
@@ -27,7 +50,6 @@ defmodule ExtendBookingContext do
     :timer.sleep(1000)
 
     %{}
-
   end
 
   scenario_finalize fn _status, _state ->
@@ -37,7 +59,7 @@ defmodule ExtendBookingContext do
 
   given_ ~r/^I have created a hourly booking$/, fn state ->
     navigate_to "/search"
-    click({:id, "Peetri 57-59"})
+    click({:id, "EXAMPLE_ADDRESS"})
     :timer.sleep(1000)
 
     find_element(:css, "#start_time_hour option[value='12']")
@@ -68,6 +90,11 @@ defmodule ExtendBookingContext do
 
   when_ ~r/^I go to My Ongoing Booking page$/, fn state ->
     navigate_to("/ongoing-booking")
+
+    assert visible_in_page? ~r/EXAMPLE_ADDRESS/
+    assert visible_in_page? ~r/12/
+    assert visible_in_page? ~r/14/
+    assert visible_in_page? ~r/4.0/
     {:ok, state}
   end
 
@@ -80,17 +107,21 @@ defmodule ExtendBookingContext do
   and_ ~r/^enter a new leaving hour for my ongoing booking$/, fn state ->
     find_element(:css, "#leaving_time_hour option[value='16']")
     |> click
+    :timer.sleep(1000)
 
-    click({:id, "extend_booking"})
+    click({:id, "submit_booking"})
 
     {:ok, state}
   end
 
   then_ ~r/^I get a confirmation message$/, fn state ->
-
-    # TODO: find leaving time field with updated value
+    :timer.sleep(2000)
 
     assert visible_in_page? ~r/Booking extended successfully/
+    assert visible_in_page? ~r/EXAMPLE_ADDRESS/
+    assert visible_in_page? ~r/12/
+    assert visible_in_page? ~r/16/
+    assert visible_in_page? ~r/8.0/
 
     {:ok, state}
   end

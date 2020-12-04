@@ -15,8 +15,13 @@ defmodule FmpsWeb.OngoingBookingController do
     booking = Repo.one(query)
 
     if booking !== nil do
-      parkingSpot = Repo.get!(ParkingSpot, booking.parking_spot_id)
-      render(conn, "index.html", ongoingExists: true, isHourly: booking.is_hourly, address: parkingSpot.address)
+      parkingSpot = Repo.get!(ParkingSpot, booking.parking_spot_id) |> Repo.preload(:parking_category)
+      priceIfHourly = if booking.is_hourly do
+                        Fmps.Prices.getTotalPriceForHourly(booking, parkingSpot.parking_category)
+                      else
+                        0
+                      end
+      render(conn, "index.html", ongoingExists: true, booking: booking, address: parkingSpot.address, priceIfHourly: priceIfHourly)
     else
       render(conn, "index.html", ongoingExists: false, isHourly: false, address: "")
     end
@@ -70,5 +75,6 @@ defmodule FmpsWeb.OngoingBookingController do
     end
 
   end
+
 
 end

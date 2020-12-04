@@ -4,6 +4,11 @@ defmodule Fmps.Prices do
     rate * 12 / 100
   end
 
+  def getTotalPriceForHourly(booking, parkingCategory)do
+    timeInParkingSpot = enhancedTimeDiff(booking.leaving_time, booking.start_time)
+    Float.ceil(timeInParkingSpot) * parkingCategory.hourly_rate
+  end
+
   def getParkingSpotsWithPrices(timeInParkingSpot, parkingSpots) do
     parkingSpots |> Enum.map(
       fn spotTuple ->
