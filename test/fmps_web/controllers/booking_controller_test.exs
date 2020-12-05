@@ -1,7 +1,10 @@
 defmodule FmpsWeb.BookingControllerTest do
   use FmpsWeb.ConnCase
+  use Hound.Helpers
+  import Ecto.Query
 
   alias Fmps.Sales
+  alias Fmps.Sales.{Booking}
 
   alias Fmps.{Repo, Accounts.User, Parking.ParkingCategory}
 
@@ -82,9 +85,11 @@ defmodule FmpsWeb.BookingControllerTest do
   end
 
   @create_attrs %{is_hourly: true, leaving_time: ~T[15:00:00], start_time: ~T[14:00:00]}
-  #@update_attrs %{is_hourly: false, leaving_time: ~T[15:01:01], start_time: ~T[15:01:01]}
-  #@invalid_attrs %{is_hourly: nil, leaving_time: nil, start_time: nil}
   @invalid_hours_attrs %{is_hourly: true, leaving_time: ~T[13:01:01], start_time: ~T[15:01:01]}
+
+  #@update_attrs %{is_hourly: false, leaving_time: ~T[15:01:01], start_time: ~T[15:01:01]}
+  #@invalid_update_attrs %{is_hourly: nil, leaving_time: nil, start_time: nil}
+
 
   def fixture(:booking) do
     {:ok, booking} = Sales.create_booking(@create_attrs)
@@ -120,7 +125,7 @@ defmodule FmpsWeb.BookingControllerTest do
     end
 
 
-    test "Modifies parking spot attribute after booking", %{conn: conn} do
+    test "Blocks parking spot availability after booking", %{conn: conn} do
 
       # Book specifically Neste spot
       knownParkingLot = Repo.get_by(ParkingSpot, name: "Neste")
@@ -144,6 +149,66 @@ defmodule FmpsWeb.BookingControllerTest do
 
       conn = get conn, "/search"
       refute html_response(conn, 200) =~ ~r/Neste/
+    end
+
+    test "Allows to extend a booking", %{conn: conn} do
+      query = from p in ParkingSpot, where: p.is_available
+      [firstLot | _] = Repo.all(query)
+
+      # create a booking to then update it
+      conn = get conn, "/booking/#{firstLot.id}"
+      conn = post conn, "/booking", %{"booking"=> %{is_hourly: true, leaving_time: ~T[14:00:00], start_time: ~T[12:00:00]}}
+      conn = get(conn, redirected_to(conn))
+
+       # assert booking was created with initial values
+       html_response(conn, 200)
+       |> assert_select("li#start_time", match: ~r/12/)
+       html_response(conn, 200)
+       |> assert_select("li#leaving_time", match: ~r/14/)
+       html_response(conn, 200)
+       |> assert_select("li#price_if_hourly", match: ~r/4/)
+
+      query = from b in Booking, where: b.parking_spot_id == ^firstLot.id, order_by: [desc: b.inserted_at], limit: 1
+      booking = Repo.one(query)
+
+      conn = put conn, "/booking/#{booking.id}", %{"booking"=> %{leaving_time: ~T[16:00:00]}}
+      conn = get(conn, redirected_to(conn))
+
+
+      # assert new booking has updated leaving hour and total price
+      html_response(conn, 200)
+      |> assert_select("li#start_time", match: ~r/12/)
+      html_response(conn, 200)
+      |> assert_select("li#leaving_time", match: ~r/16/)
+      html_response(conn, 200)
+      |> assert_select("li#price_if_hourly", match: ~r/8/)
+    end
+
+
+    test "Shows error on invalid leaving hour extension", %{conn: conn} do
+      query = from p in ParkingSpot, where: p.is_available
+      [firstLot | _] = Repo.all(query)
+
+      # create a booking to then update it
+      conn = get conn, "/booking/#{firstLot.id}"
+      conn = post conn, "/booking", %{"booking"=> %{is_hourly: true, leaving_time: ~T[14:00:00], start_time: ~T[12:00:00]}}
+      conn = get(conn, redirected_to(conn))
+
+       # assert booking was created with initial values
+       html_response(conn, 200)
+       |> assert_select("li#start_time", match: ~r/12/)
+       html_response(conn, 200)
+       |> assert_select("li#leaving_time", match: ~r/14/)
+       html_response(conn, 200)
+       |> assert_select("li#price_if_hourly", match: ~r/4/)
+
+      query = from b in Booking, where: b.parking_spot_id == ^firstLot.id, order_by: [desc: b.inserted_at], limit: 1
+      booking = Repo.one(query)
+
+      conn = put conn, "/booking/#{booking.id}", %{"booking"=> %{leaving_time: ~T[13:00:00]}}
+      conn = get(conn, redirected_to(conn))
+
+      assert html_response(conn, 200) =~ ~r/New leaving time cannot be earlier than original leaving time/
     end
 
 

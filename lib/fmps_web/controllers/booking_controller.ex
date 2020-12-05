@@ -52,14 +52,14 @@ defmodule FmpsWeb.BookingController do
 
   def update(conn, %{"id" => id, "booking" => booking_params}) do
     booking = Sales.get_booking!(id)
-    # TODO: logic to update
+    # TODO: block editing of starting hour
+    # TODO: validate new leaving hour
 
     case Sales.update_booking(booking, booking_params) do
-      {:ok, booking} ->
+      {:ok, _booking} ->
         conn
         |> put_flash(:info, "Booking extended successfully")
         |> redirect(to: Routes.ongoing_booking_path(conn, :index))
-        #|> redirect(to: Routes.booking_path(conn, :show, booking))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", booking: booking, changeset: changeset)

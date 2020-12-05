@@ -7,7 +7,7 @@
 
   <%= if !(@booking.is_hourly) do%>
     <ul>
-      <li>Start: <%= @booking.start_time %></li>
+      <li id="start_time">Start: <%= @booking.start_time %></li>
     </ul>
 
     <%= form_tag("/ongoing-booking", method: :post) %>
@@ -17,9 +17,9 @@
 
   <%= if (@booking.is_hourly) do%>
     <ul>
-      <li>Start: <%= @booking.start_time %></li>
-      <li>End: <%= @booking.leaving_time %></li>
-      <li>Total Price: <%= @priceIfHourly %></li>
+      <li id="start_time">Start: <%= @booking.start_time %></li>
+      <li id="leaving_time">End: <%= @booking.leaving_time %></li>
+      <li id="price_if_hourly">Total Price: <%= @priceIfHourly %></li>
     </ul>
     <%= form_tag("/booking/#{@booking.id}/edit", address: @address, method: :get) %>
       <button id="extend-hourly" type="submit">Extend</button>
