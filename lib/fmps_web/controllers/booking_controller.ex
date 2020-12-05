@@ -81,14 +81,12 @@ defmodule FmpsWeb.BookingController do
   end
 
   def update(conn, %{"id" => id, "booking" => booking_params}) do
+    user = Fmps.Authentication.load_current_user(conn)
     booking = Sales.get_booking!(id)
-
-     # TODO: unit test to validate user has enough money
-     # TODO: validate user has enough money in wallet
-     # TODO: unit test to validate balance is updated
-     # TODO: charge user
+    parkingSpot = Repo.get!(ParkingSpot, booking.parking_spot_id) |> Repo.preload(:parking_category)
 
     try do
+
       leavingTimeParams = Map.get(booking_params, "leaving_time")
 
       {_status, newLeavingTime} = Time.new(Map.get(leavingTimeParams,"hour") |> String.to_integer, Map.get(leavingTimeParams,"minute") |> String.to_integer, 0, 0)
@@ -96,8 +94,19 @@ defmodule FmpsWeb.BookingController do
       # Anything other than the new leaving time being greater than the original leaving time,
       # is interpreted as invalid
       case Time.compare(newLeavingTime, booking.leaving_time) do
-        :gt ->  case Sales.update_booking(booking, booking_params) do
+        :gt ->  oldPrice = Fmps.Prices.getTotalPriceForHourly(booking.start_time, booking.leaving_time, parkingSpot.parking_category)
+                newPrice = Fmps.Prices.getTotalPriceForHourly(booking.start_time, newLeavingTime, parkingSpot.parking_category)
+                difference = newPrice - oldPrice
+
+                if Booking.changeset(%Booking{}, booking_params).valid? && difference > user.balance do
+                  raise NotEnoughFundsError
+                end
+
+                case Sales.update_booking(booking, booking_params) do
                   {:ok, _booking} ->
+
+                    Ecto.Changeset.change(user, %{balance: user.balance - difference}) |> Repo.update!()
+
                     conn
                     |> put_flash(:info, "Payment done. Booking extended successfully.")
                     |> redirect(to: Routes.ongoing_booking_path(conn, :index))
@@ -110,7 +119,12 @@ defmodule FmpsWeb.BookingController do
                 |> redirect(to: Routes.booking_path(conn, :edit, booking))
       end
     rescue
-      _ -> conn
+      e in NotEnoughFundsError -> conn
+           |> put_flash(:error, e.message)
+           |> redirect(to: Routes.search_path(conn, :index))
+
+      e ->  IO.inspect e
+            conn
             |> put_flash(:error, "Something went wrong.")
             |> redirect(to: Routes.booking_path(conn, :edit, booking))
     end
