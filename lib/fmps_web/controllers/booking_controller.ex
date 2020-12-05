@@ -36,6 +36,7 @@ defmodule FmpsWeb.BookingController do
                 0
               end
 
+      # if not monthly
       if Booking.changeset(%Booking{}, booking_params).valid? && price > user.balance do
         raise NotEnoughFundsError
       end
@@ -45,6 +46,7 @@ defmodule FmpsWeb.BookingController do
 
           Ecto.Changeset.change(parkingSpot, %{is_available: false}) |> Repo.update!()
 
+          # if not monthly
           if booking.is_hourly do
             Ecto.Changeset.change(user, %{balance: user.balance - price}) |> Repo.update!()
           end
@@ -98,6 +100,7 @@ defmodule FmpsWeb.BookingController do
                 newPrice = Fmps.Prices.getTotalPriceForHourly(booking.start_time, newLeavingTime, parkingSpot.parking_category)
                 difference = newPrice - oldPrice
 
+                # if not monthly
                 if Booking.changeset(%Booking{}, booking_params).valid? && difference > user.balance do
                   raise NotEnoughFundsError
                 end
@@ -105,6 +108,7 @@ defmodule FmpsWeb.BookingController do
                 case Sales.update_booking(booking, booking_params) do
                   {:ok, _booking} ->
 
+                    # if not monthly
                     Ecto.Changeset.change(user, %{balance: user.balance - difference}) |> Repo.update!()
 
                     conn
