@@ -4,8 +4,8 @@ defmodule Fmps.Prices do
     rate * 12 / 100
   end
 
-  def getTotalPriceForHourly(booking, parkingCategory)do
-    timeInParkingSpot = enhancedTimeDiff(booking.leaving_time, booking.start_time)
+  def getTotalPriceForHourly(start_time, leaving_time, parkingCategory)do
+    timeInParkingSpot = enhancedTimeDiff(leaving_time, start_time)
     Float.ceil(timeInParkingSpot) * parkingCategory.hourly_rate
   end
 

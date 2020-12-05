@@ -4,8 +4,8 @@ Feature: Extending a booking
     I want to be able to extend its duration
 
     Scenario: Successfully extending a hourly payment booking
-        Given I have created a hourly booking
-        And I have enough money in my wallet
+        Given I have enough money in my wallet
+        And I have created a hourly booking
         And I am in the home page
         When I go to My Ongoing Booking page
         And I click the Extend button

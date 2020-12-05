@@ -57,7 +57,15 @@ defmodule ExtendBookingContext do
     Hound.end_session
   end
 
-  given_ ~r/^I have created a hourly booking$/, fn state ->
+  given_ ~r/^I have enough money in my wallet$/, fn state ->
+    navigate_to("/mywallet")
+    fill_field({:id, "input_money"}, "125.0")
+    click({:id, "add"})
+    visible_in_element?({:id, "balance"}, ~r/125.0/iu)
+    {:ok, state}
+  end
+
+  and_ ~r/^I have created a hourly booking$/, fn state ->
     navigate_to "/search"
     click({:id, "EXAMPLE_ADDRESS"})
     :timer.sleep(1000)
@@ -74,13 +82,7 @@ defmodule ExtendBookingContext do
     {:ok, state}
   end
 
-  and_ ~r/^I have enough money in my wallet$/, fn state ->
-    navigate_to("/mywallet")
-    fill_field({:id, "input_money"}, "125.0")
-    click({:id, "add"})
-    visible_in_element?({:id, "balance"}, ~r/125.0/iu)
-    {:ok, state}
-  end
+
 
   and_ ~r/^I am in the home page$/, fn state ->
     navigate_to("/")

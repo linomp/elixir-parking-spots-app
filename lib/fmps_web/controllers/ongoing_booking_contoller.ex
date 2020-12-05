@@ -17,7 +17,7 @@ defmodule FmpsWeb.OngoingBookingController do
     if booking !== nil do
       parkingSpot = Repo.get!(ParkingSpot, booking.parking_spot_id) |> Repo.preload(:parking_category)
       priceIfHourly = if booking.is_hourly do
-                        Fmps.Prices.getTotalPriceForHourly(booking, parkingSpot.parking_category)
+                        Fmps.Prices.getTotalPriceForHourly(booking.start_time, booking.leaving_time, parkingSpot.parking_category)
                       else
                         0
                       end
