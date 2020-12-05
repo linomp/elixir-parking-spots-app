@@ -1,28 +1,29 @@
-
 <%= if (@ongoingExists) do%>
 
-  <%= if !(@isHourly) do%>
-    <hr>
-    <h2>
-      <%= "Ongoing real-time booking at #{@address}" %>
-    </h2>
+  <hr>
+  <h2>
+    <%= "Ongoing #{if @booking.is_hourly do "hourly" else "real-time" end} booking at #{@address}" %>
+  </h2>
 
-  <%= form_tag("/ongoing-booking", method: :post) %>
-    <button id="pay-real-time" type="submit">Pay</button>
-  </form>
+  <%= if !(@booking.is_hourly) do%>
+    <ul>
+      <li id="start_time">Start: <%= @booking.start_time %></li>
+    </ul>
 
+    <%= form_tag("/ongoing-booking", method: :post) %>
+      <button id="pay-real-time" type="submit">Pay</button>
+    </form>
   <% end %>
 
-  <%= if (@isHourly) do%>
-    <hr>
-    <h2>
-      Ongoing hourly booking
-    </h2>
-
-  <%= form_tag("/ongoing-booking", method: :post) %>
-    <button id="extend-hourly" type="submit">Extend</button>
-  </form>
-
+  <%= if (@booking.is_hourly) do%>
+    <ul>
+      <li id="start_time">Start: <%= @booking.start_time %></li>
+      <li id="leaving_time">End: <%= @booking.leaving_time %></li>
+      <li id="price_if_hourly">Total Price: <%= @priceIfHourly %></li>
+    </ul>
+    <%= form_tag("/booking/#{@booking.id}/edit", address: @address, method: :get) %>
+      <button id="extend-hourly" type="submit">Extend</button>
+    </form>
   <% end %>
 
 <% else %>
@@ -33,5 +34,3 @@
     </h2>
 
 <% end %>
-
-<br/>

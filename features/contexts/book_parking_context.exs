@@ -70,6 +70,14 @@ defmodule BookParkingContext do
     Hound.end_session
   end
 
+  given_ ~r/^I have enough money in my wallet$/, fn state ->
+    navigate_to("/mywallet")
+    fill_field({:id, "input_money"}, "20.0")
+    click({:id, "add"})
+    visible_in_element?({:id, "balance"}, ~r/20.0/iu)
+    {:ok, state}
+  end
+
   when_ ~r/^I go to search parking lot page$/, fn state ->
     navigate_to "/search"
     {:ok, state}
@@ -119,6 +127,11 @@ defmodule BookParkingContext do
 
   then_ ~r/^I get a confirmation message$/, fn state ->
     assert visible_in_page? ~r/Booking created successfully/
+    {:ok, state}
+  end
+
+  and_ ~r/^I get a confirmation of payment message$/, fn state ->
+    assert visible_in_page? ~r/Payment done/
     {:ok, state}
   end
 

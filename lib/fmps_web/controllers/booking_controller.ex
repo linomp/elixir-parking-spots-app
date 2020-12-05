@@ -1,3 +1,7 @@
+defmodule NotEnoughFundsError do
+  defexception message: "Not enough funds!"
+end
+
 defmodule FmpsWeb.BookingController do
   use FmpsWeb, :controller
   alias Fmps.Repo
@@ -20,20 +24,46 @@ defmodule FmpsWeb.BookingController do
     user = Fmps.Authentication.load_current_user(conn)
 
     # Read parking id from cookie (previously set in show)
-    parkingSpot = Repo.get!(ParkingSpot, conn.cookies["parking_spot_id"])
+    parkingSpot = Repo.get!(ParkingSpot, conn.cookies["parking_spot_id"]) |> Repo.preload(:parking_category)
 
-    case Sales.create_booking(%{"bookingParams"=>booking_params, "user"=>user, "parkingSpot"=>parkingSpot}) do
-      {:ok, _booking} ->
+    try do
 
-        Ecto.Changeset.change(parkingSpot, %{is_available: false}) |> Repo.update!()
+      # This is literally the worst thing I have written in my life. Please refactor this and fire me.
+      price = if booking_params["is_hourly"] == true || booking_params["is_hourly"] == "true" do
+                temp = Booking.changeset(%Booking{}, booking_params)
+                Fmps.Prices.getTotalPriceForHourly(temp.changes.start_time, temp.changes.leaving_time, parkingSpot.parking_category)
+              else
+                0
+              end
 
-        conn
-        |> put_flash(:info, "Booking created successfully.")
-        |> redirect(to: Routes.ongoing_booking_path(conn, :index))
+      if Booking.changeset(%Booking{}, booking_params).valid? && price > user.balance do
+        raise NotEnoughFundsError
+      end
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>parkingSpot.address})
+      case Sales.create_booking(%{"bookingParams"=>booking_params, "user"=>user, "parkingSpot"=>parkingSpot}) do
+        {:ok, booking} ->
+
+          Ecto.Changeset.change(parkingSpot, %{is_available: false}) |> Repo.update!()
+
+          if booking.is_hourly do
+            Ecto.Changeset.change(user, %{balance: user.balance - price}) |> Repo.update!()
+          end
+
+          conn
+          |> put_flash(:info, "#{if booking.is_hourly do "Payment done. " else "" end}Booking created successfully.")
+          |> redirect(to: Routes.ongoing_booking_path(conn, :index))
+
+        {:error, %Ecto.Changeset{} = changeset} ->
+          render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>parkingSpot.address})
+      end
+
+    rescue
+      e in NotEnoughFundsError -> conn
+           |> put_flash(:error, e.message)
+           |> redirect(to: Routes.search_path(conn, :index))
     end
+
+
   end
 
   def show(conn, %{"id" => id}) do
@@ -51,17 +81,54 @@ defmodule FmpsWeb.BookingController do
   end
 
   def update(conn, %{"id" => id, "booking" => booking_params}) do
+    user = Fmps.Authentication.load_current_user(conn)
     booking = Sales.get_booking!(id)
+    parkingSpot = Repo.get!(ParkingSpot, booking.parking_spot_id) |> Repo.preload(:parking_category)
 
-    case Sales.update_booking(booking, booking_params) do
-      {:ok, booking} ->
-        conn
-        |> put_flash(:info, "Booking updated successfully.")
-        |> redirect(to: Routes.booking_path(conn, :show, booking))
+    try do
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", booking: booking, changeset: changeset)
+      leavingTimeParams = Map.get(booking_params, "leaving_time")
+
+      {_status, newLeavingTime} = Time.new(Map.get(leavingTimeParams,"hour") |> String.to_integer, Map.get(leavingTimeParams,"minute") |> String.to_integer, 0, 0)
+
+      # Anything other than the new leaving time being greater than the original leaving time,
+      # is interpreted as invalid
+      case Time.compare(newLeavingTime, booking.leaving_time) do
+        :gt ->  oldPrice = Fmps.Prices.getTotalPriceForHourly(booking.start_time, booking.leaving_time, parkingSpot.parking_category)
+                newPrice = Fmps.Prices.getTotalPriceForHourly(booking.start_time, newLeavingTime, parkingSpot.parking_category)
+                difference = newPrice - oldPrice
+
+                if Booking.changeset(%Booking{}, booking_params).valid? && difference > user.balance do
+                  raise NotEnoughFundsError
+                end
+
+                case Sales.update_booking(booking, booking_params) do
+                  {:ok, _booking} ->
+
+                    Ecto.Changeset.change(user, %{balance: user.balance - difference}) |> Repo.update!()
+
+                    conn
+                    |> put_flash(:info, "Payment done. Booking extended successfully.")
+                    |> redirect(to: Routes.ongoing_booking_path(conn, :index))
+
+                  {:error, %Ecto.Changeset{} = changeset} ->
+                    render(conn, "edit.html", booking: booking, changeset: changeset)
+                end
+        _ ->    conn
+                |> put_flash(:error, "New leaving time must be later than original leaving time")
+                |> redirect(to: Routes.booking_path(conn, :edit, booking))
+      end
+    rescue
+      e in NotEnoughFundsError -> conn
+           |> put_flash(:error, e.message)
+           |> redirect(to: Routes.search_path(conn, :index))
+
+      e ->  IO.inspect e
+            conn
+            |> put_flash(:error, "Something went wrong.")
+            |> redirect(to: Routes.booking_path(conn, :edit, booking))
     end
+
   end
 
   def delete(conn, %{"id" => id}) do

@@ -1,7 +1,10 @@
 defmodule FmpsWeb.BookingControllerTest do
   use FmpsWeb.ConnCase
+  use Hound.Helpers
+  import Ecto.Query
 
   alias Fmps.Sales
+  alias Fmps.Sales.{Booking}
 
   alias Fmps.{Repo, Accounts.User, Parking.ParkingCategory}
 
@@ -64,6 +67,7 @@ defmodule FmpsWeb.BookingControllerTest do
         name: "Anna Karenina",
         email: "anna.karenina@gmail.com",
         licence_number: "ES345632",
+        balance: 100.0,
         password: "parool"
       })
 
@@ -82,8 +86,6 @@ defmodule FmpsWeb.BookingControllerTest do
   end
 
   @create_attrs %{is_hourly: true, leaving_time: ~T[15:00:00], start_time: ~T[14:00:00]}
-  @update_attrs %{is_hourly: false, leaving_time: ~T[15:01:01], start_time: ~T[15:01:01]}
-  @invalid_attrs %{is_hourly: nil, leaving_time: nil, start_time: nil}
   @invalid_hours_attrs %{is_hourly: true, leaving_time: ~T[13:01:01], start_time: ~T[15:01:01]}
 
   def fixture(:booking) do
@@ -91,10 +93,10 @@ defmodule FmpsWeb.BookingControllerTest do
     booking
   end
 
-  defp create_booking() do
-    booking = fixture(:booking)
-    %{booking: booking}
-  end
+  #defp create_booking() do
+  #  booking = fixture(:booking)
+  #  %{booking: booking}
+  #end
 
   describe "Booking" do
     test "Creates a valid booking", %{conn: conn} do
@@ -102,10 +104,18 @@ defmodule FmpsWeb.BookingControllerTest do
       [firstLot | _] = Repo.all(ParkingSpot)
 
       conn = get conn, "/booking/#{firstLot.id}"
+
+      user = Fmps.Authentication.load_current_user(conn)
+      initialBalance = user.balance
+
       conn = post conn, "/booking", %{"booking"=>@create_attrs}
       conn = get(conn, redirected_to(conn))
 
       assert html_response(conn, 200) =~ ~r/Booking created successfully/
+
+      # Check user's balance is updated accordingly
+      user = Fmps.Authentication.load_current_user(conn)
+      assert initialBalance - user.balance == 2.0
     end
 
     test "Shows error message on invalid booking", %{conn: conn} do
@@ -114,13 +124,12 @@ defmodule FmpsWeb.BookingControllerTest do
 
       conn = get conn, "/booking/#{firstLot.id}"
       conn = post conn, "/booking", %{"booking"=>@invalid_hours_attrs}
-      #conn = get(conn, redirected_to(conn))
 
       assert html_response(conn, 200) =~ ~r/Leaving time must be later than start time/
     end
 
 
-    test "Modifies parking spot attribute after booking", %{conn: conn} do
+    test "Blocks parking spot availability after booking", %{conn: conn} do
 
       # Book specifically Neste spot
       knownParkingLot = Repo.get_by(ParkingSpot, name: "Neste")
@@ -138,12 +147,84 @@ defmodule FmpsWeb.BookingControllerTest do
           address: "Narva maantee 18, 51009 Tartu",
           leavingTime: ""
         }
+
       # Should display names of close locations, except the already booked
       assert html_response(conn, 200) =~ ~r/Ujula Konsum/
       refute html_response(conn, 200) =~ ~r/Neste/
 
       conn = get conn, "/search"
       refute html_response(conn, 200) =~ ~r/Neste/
+    end
+
+    test "Allows to extend a booking", %{conn: conn} do
+      query = from p in ParkingSpot, where: p.is_available
+      [firstLot | _] = Repo.all(query)
+
+      # create a booking to then update it
+      conn = get conn, "/booking/#{firstLot.id}"
+      user = Fmps.Authentication.load_current_user(conn)
+      initialBalance = user.balance
+
+      conn = post conn, "/booking", %{"booking"=> %{is_hourly: true, leaving_time: ~T[14:00:00], start_time: ~T[12:00:00]}}
+      conn = get(conn, redirected_to(conn))
+
+      # assert booking was created with initial values
+      html_response(conn, 200)
+      |> assert_select("li#start_time", match: ~r/12/)
+      html_response(conn, 200)
+      |> assert_select("li#leaving_time", match: ~r/14/)
+      html_response(conn, 200)
+      |> assert_select("li#price_if_hourly", match: ~r/4/)
+
+      user = Fmps.Authentication.load_current_user(conn)
+      intermediateBalance = user.balance
+
+      query = from b in Booking, where: b.parking_spot_id == ^firstLot.id, order_by: [desc: b.inserted_at], limit: 1
+      booking = Repo.one(query)
+
+      conn = put conn, "/booking/#{booking.id}", %{"booking"=> %{"leaving_time"=> %{"hour"=>"16", "minute"=>"0"}}}
+      conn = get(conn, redirected_to(conn))
+
+      # assert new booking has updated leaving hour and total price
+      html_response(conn, 200)
+      |> assert_select("li#start_time", match: ~r/12/)
+      html_response(conn, 200)
+      |> assert_select("li#leaving_time", match: ~r/16/)
+      html_response(conn, 200)
+      |> assert_select("li#price_if_hourly", match: ~r/8/)
+
+      # Check user is charged only with the difference
+      user = Fmps.Authentication.load_current_user(conn)
+      assert initialBalance - intermediateBalance  == 4.0 # money charged for the original booking
+      assert intermediateBalance - user.balance == 4.0 # money charged for the extension of booking
+      assert initialBalance - user.balance == 8.0 # total money charged
+    end
+
+
+    test "Shows error on invalid leaving hour extension", %{conn: conn} do
+      query = from p in ParkingSpot, where: p.is_available
+      [firstLot | _] = Repo.all(query)
+
+      # create a booking to then update it
+      conn = get conn, "/booking/#{firstLot.id}"
+      conn = post conn, "/booking", %{"booking"=> %{is_hourly: true, leaving_time: ~T[14:00:00], start_time: ~T[12:00:00]}}
+      conn = get(conn, redirected_to(conn))
+
+       # assert booking was created with initial values
+       html_response(conn, 200)
+       |> assert_select("li#start_time", match: ~r/12/)
+       html_response(conn, 200)
+       |> assert_select("li#leaving_time", match: ~r/14/)
+       html_response(conn, 200)
+       |> assert_select("li#price_if_hourly", match: ~r/4/)
+
+      query = from b in Booking, where: b.parking_spot_id == ^firstLot.id, order_by: [desc: b.inserted_at], limit: 1
+      booking = Repo.one(query)
+
+      conn = put conn, "/booking/#{booking.id}", %{"booking"=> %{"leaving_time"=> %{"hour"=>"13", "minute"=>"0"}}}
+      conn = get(conn, redirected_to(conn))
+
+      assert html_response(conn, 200) =~ ~r/New leaving time must be later than original leaving time/
     end
 
 

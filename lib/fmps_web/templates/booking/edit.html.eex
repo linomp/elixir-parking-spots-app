@@ -1,5 +1,28 @@
 <h1>Edit Booking</h1>
 
-<%= render "form.html", Map.put(assigns, :action, Routes.booking_path(@conn, :update, @booking)) %>
+<%= form_for @changeset, Routes.booking_path(@conn, :update, @booking), fn f -> %>
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+  <% end %>
 
-<span><%= link "Back", to: Routes.booking_path(@conn, :index) %></span>
+  <ul>
+    <li id="start_time">Start Time: <%= @booking.start_time %></li>
+    <li id="leaving_time">Original Leaving Time: <%= @booking.leaving_time %></li>
+ </ul>
+
+  <label>New Leaving Time</label>
+  <%= time_select f, :leaving_time, id: "leaving_time" %>
+  <%= error_tag f, :leaving_time %>
+
+  <div>
+    <%= submit "Submit booking", id: "submit_booking" %>
+  </div>
+
+
+<% end %>
+
+
+
+<span><%= link "Back", to: Routes.ongoing_booking_path(@conn, :index) %></span>

@@ -1,8 +1,6 @@
 defmodule FmpsWeb.OngoingBookingControllerTest do
   use FmpsWeb.ConnCase
 
-  alias Fmps.Sales
-
   alias Fmps.{Repo, Accounts.User, Parking.ParkingCategory}
 
   alias Fmps.Parking.{ParkingSpot}
@@ -112,7 +110,7 @@ defmodule FmpsWeb.OngoingBookingControllerTest do
 
     end
 
-    
+
     test "balance of the user is updated correctly after payment", %{conn: conn} do
 
       # put money into wallet

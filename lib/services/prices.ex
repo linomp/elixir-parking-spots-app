@@ -4,6 +4,11 @@ defmodule Fmps.Prices do
     rate * 12 / 100
   end
 
+  def getTotalPriceForHourly(start_time, leaving_time, parkingCategory)do
+    timeInParkingSpot = enhancedTimeDiff(leaving_time, start_time)
+    Float.ceil(timeInParkingSpot) * parkingCategory.hourly_rate
+  end
+
   def getParkingSpotsWithPrices(timeInParkingSpot, parkingSpots) do
     parkingSpots |> Enum.map(
       fn spotTuple ->
@@ -34,6 +39,15 @@ defmodule Fmps.Prices do
   @spec isValid(any) :: boolean
   def isValid(time) do
     String.match?(time, ~r/^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/) and String.length(time) == 5
+  end
+
+  def enhancedTimeDiff(time_1, time_2) do
+    simpleDiff =  Time.diff(time_1, time_2, :second) / 3600
+    if simpleDiff <= 0 do
+      simpleDiff + 24
+    else
+      simpleDiff
+    end
   end
 
 end

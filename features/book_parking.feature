@@ -12,6 +12,7 @@ Feature: Booking a parking lot
         Then I get a confirmation message
     
     Scenario: Successfully booking a parking lot with hourly payment
+        Given I have enough money in my wallet
         When I go to search parking lot page
         And click on a parking lot to be navigated to booking page
         And I pick hourly payment
@@ -19,3 +20,4 @@ Feature: Booking a parking lot
         And I enter my end time as "14":"14"
         And I click submit booking
         Then I get a confirmation message
+        And I get a confirmation of payment message

@@ -1,8 +1,10 @@
-defmodule BillingContext do
+defmodule ExtendBookingContext do
   use WhiteBread.Context
   use Hound.Helpers
+  import Hound.Matchers
 
-  alias Fmps.{Repo, Accounts.User, Parking.ParkingCategory}
+  alias Fmps.{Repo, Accounts.User}
+  alias Fmps.Parking.{ParkingCategory}
 
   feature_starting_state fn  ->
     Application.ensure_all_started(:hound)
@@ -19,12 +21,6 @@ defmodule BillingContext do
     |> Enum.map(fn user_data -> User.changeset(%User{}, user_data) end)
     |> Enum.each(fn changeset -> Repo.insert!(changeset) end)
 
-    navigate_to "/sessions/new"
-    fill_field({:id, "email"}, "anna.karenina@gmail.com")
-    fill_field({:id, "password"}, "parool")
-    click({:id, "submit_login"})
-    :timer.sleep(1000)
-
 
     # Create parking spots
     categoryA =
@@ -39,21 +35,7 @@ defmodule BillingContext do
       [
         %{
           name: "a1",
-          address: "Vaike-Turu 1",
-          latitude: 58.378163,
-          longitude: 26.733274,
-          city: "Tartu"
-        },
-        %{
-          name: "a3",
-          address: "Puiestee 110",
-          latitude: 58.386518,
-          longitude: 26.737152,
-          city: "Tartu"
-        },
-        %{
-          name: "a1",
-          address: "Peetri 57-59",
+          address: "EXAMPLE_ADDRESS",
           latitude: 58.388034,
           longitude: 26.736930,
           city: "Tartu"
@@ -61,6 +43,11 @@ defmodule BillingContext do
         |> Enum.map(fn parkingSpotData -> Ecto.build_assoc(categoryA, :spots, parkingSpotData) end)
         |> Enum.each(fn changeset -> Repo.insert!(changeset) end)
 
+    navigate_to "/sessions/new"
+    fill_field({:id, "email"}, "anna.karenina@gmail.com")
+    fill_field({:id, "password"}, "parool")
+    click({:id, "submit_login"})
+    :timer.sleep(1000)
 
     %{}
   end
@@ -70,15 +57,24 @@ defmodule BillingContext do
     Hound.end_session
   end
 
-  given_ ~r/^I have created a real-time booking$/, fn state ->
+  given_ ~r/^I have enough money in my wallet$/, fn state ->
+    navigate_to("/mywallet")
+    fill_field({:id, "input_money"}, "125.0")
+    click({:id, "add"})
+    visible_in_element?({:id, "balance"}, ~r/125.0/iu)
+    {:ok, state}
+  end
+
+  and_ ~r/^I have created a hourly booking$/, fn state ->
     navigate_to "/search"
-    click({:id, "Peetri 57-59"})
+    click({:id, "EXAMPLE_ADDRESS"})
     :timer.sleep(1000)
-    click({:id, "is_real_time"})
+
     find_element(:css, "#start_time_hour option[value='12']")
     |> click
 
-    find_element(:css, "#start_time_minute option[value='12']")
+
+    find_element(:css, "#leaving_time_hour option[value='14']")
     |> click
 
     click({:id, "submit_booking"})
@@ -86,13 +82,7 @@ defmodule BillingContext do
     {:ok, state}
   end
 
-  and_ ~r/^I have enough money in my wallet$/, fn state ->
-    navigate_to("/mywallet")
-    fill_field({:id, "input_money"}, "125.0")
-    click({:id, "add"})
-    visible_in_element?({:id, "balance"}, ~r/125.0/iu)
-    {:ok, state}
-  end
+
 
   and_ ~r/^I am in the home page$/, fn state ->
     navigate_to("/")
@@ -102,16 +92,44 @@ defmodule BillingContext do
 
   when_ ~r/^I go to My Ongoing Booking page$/, fn state ->
     navigate_to("/ongoing-booking")
+
+    assert visible_in_page? ~r/EXAMPLE_ADDRESS/
+    assert visible_in_page? ~r/12/
+    assert visible_in_page? ~r/14/
+    assert visible_in_page? ~r/4.0/
     {:ok, state}
   end
 
-  and_ ~r/^click on button to pay for my ongoing real-time booking$/, fn state ->
-    click({:id, "pay-real-time"})
+  and_ ~r/^I click the Extend button$/, fn state ->
+    click({:id, "extend-hourly"})
+    {:ok, state}
+  end
+
+
+  and_ ~r/^enter a new leaving hour for my ongoing booking$/, fn state ->
+    find_element(:css, "#leaving_time_hour option[value='16']")
+    |> click
+    :timer.sleep(1000)
+
+    click({:id, "submit_booking"})
+
     {:ok, state}
   end
 
   then_ ~r/^I get a confirmation message$/, fn state ->
-    assert visible_in_page? ~r/Payment successfully done/
+    :timer.sleep(2000)
+
+    assert visible_in_page? ~r/Booking extended successfully/
+    assert visible_in_page? ~r/EXAMPLE_ADDRESS/
+    assert visible_in_page? ~r/12/
+    assert visible_in_page? ~r/16/
+    assert visible_in_page? ~r/8.0/
+
+    {:ok, state}
+  end
+
+  and_ ~r/^I get a confirmation of payment message$/, fn state ->
+    assert visible_in_page? ~r/Payment done/
     {:ok, state}
   end
 

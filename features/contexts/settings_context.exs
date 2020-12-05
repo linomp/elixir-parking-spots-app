@@ -3,7 +3,7 @@ defmodule SettingsContext do
   use Hound.Helpers
   import Hound.Matchers
 
-  alias Fmps.{Repo, Accounts.User, Parking.ParkingCategory}
+  alias Fmps.{Repo, Accounts.User}
 
   feature_starting_state fn  ->
     Application.ensure_all_started(:hound)
