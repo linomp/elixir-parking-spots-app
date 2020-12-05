@@ -171,7 +171,7 @@ defmodule FmpsWeb.BookingControllerTest do
       query = from b in Booking, where: b.parking_spot_id == ^firstLot.id, order_by: [desc: b.inserted_at], limit: 1
       booking = Repo.one(query)
 
-      conn = put conn, "/booking/#{booking.id}", %{"booking"=> %{leaving_time: ~T[16:00:00]}}
+      conn = put conn, "/booking/#{booking.id}", %{"booking"=> %{"leaving_time"=> %{"hour"=>"16", "minute"=>"0"}}}
       conn = get(conn, redirected_to(conn))
 
 
@@ -205,10 +205,10 @@ defmodule FmpsWeb.BookingControllerTest do
       query = from b in Booking, where: b.parking_spot_id == ^firstLot.id, order_by: [desc: b.inserted_at], limit: 1
       booking = Repo.one(query)
 
-      conn = put conn, "/booking/#{booking.id}", %{"booking"=> %{leaving_time: ~T[13:00:00]}}
+      conn = put conn, "/booking/#{booking.id}", %{"booking"=> %{"leaving_time"=> %{"hour"=>"13", "minute"=>"0"}}}
       conn = get(conn, redirected_to(conn))
 
-      assert html_response(conn, 200) =~ ~r/New leaving time cannot be earlier than original leaving time/
+      assert html_response(conn, 200) =~ ~r/New leaving time must be later than original leaving time/
     end
 
 

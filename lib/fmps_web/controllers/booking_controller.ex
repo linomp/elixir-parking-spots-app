@@ -52,18 +52,35 @@ defmodule FmpsWeb.BookingController do
 
   def update(conn, %{"id" => id, "booking" => booking_params}) do
     booking = Sales.get_booking!(id)
-    # TODO: block editing of starting hour
-    # TODO: validate new leaving hour
 
-    case Sales.update_booking(booking, booking_params) do
-      {:ok, _booking} ->
-        conn
-        |> put_flash(:info, "Booking extended successfully")
-        |> redirect(to: Routes.ongoing_booking_path(conn, :index))
+    # wrap in try, in case Time parsing fails
+    try do
+      # anything other than the new leaving time being greater than the original leaving time,
+      # is interpreted as invalid
+      leavingTimeParams = Map.get(booking_params, "leaving_time")
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", booking: booking, changeset: changeset)
+      {_status, newLeavingTime} = Time.new(Map.get(leavingTimeParams,"hour") |> String.to_integer, Map.get(leavingTimeParams,"minute") |> String.to_integer, 0, 0)
+
+      case Time.compare(newLeavingTime, booking.leaving_time) do
+        :gt ->  case Sales.update_booking(booking, booking_params) do
+                  {:ok, _booking} ->
+                    conn
+                    |> put_flash(:info, "Booking extended successfully")
+                    |> redirect(to: Routes.ongoing_booking_path(conn, :index))
+
+                  {:error, %Ecto.Changeset{} = changeset} ->
+                    render(conn, "edit.html", booking: booking, changeset: changeset)
+                end
+        _ ->    conn
+                |> put_flash(:info, "New leaving time must be later than original leaving time")
+                |> redirect(to: Routes.booking_path(conn, :edit, booking))
+      end
+    rescue
+      _ -> conn
+            |> put_flash(:info, "Something went wrong.")
+            |> redirect(to: Routes.booking_path(conn, :edit, booking))
     end
+
   end
 
   def delete(conn, %{"id" => id}) do
