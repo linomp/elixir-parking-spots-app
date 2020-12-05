@@ -2,7 +2,6 @@
   <label>
     Settings
   </label>
-user
   <%= checkbox(user, :is_monthly_payment, value: @user.is_monthly_payment, id: "is_monthly_payment_id")%>
   Is monthly payment
   <%= submit "Update", id: "submit_settings" %>

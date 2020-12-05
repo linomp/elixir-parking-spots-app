@@ -38,7 +38,7 @@ defmodule FmpsWeb.OngoingBookingController do
     if !booking.is_hourly do
 
       time = if (is_nil(Map.get(params, "currentTime"))) do
-        currentTimeInEstonia = Time.add(Time.utc_now(), 2*3600)  # TODO: fix some day
+        currentTimeInEstonia = Time.add(Time.utc_now(), 2*3600) 
         Fmps.Prices.enhancedTimeDiff(currentTimeInEstonia, booking.start_time)
       else
         Fmps.Prices.enhancedTimeDiff(Map.get(params, "currentTime"), booking.start_time)
@@ -46,13 +46,17 @@ defmodule FmpsWeb.OngoingBookingController do
 
       price = Fmps.Prices.getParkingSpotPrices(time, parkingSpot.parking_category).priceIfRealTime
 
+      # if not monthly
       if user.balance < price do
         conn
         |> put_flash(:info, "Not enough balance, price is #{price} Euros")
         |> redirect(to: Routes.mywallet_path(conn, :index))
       else
 
-        Repo.update!( Changeset.change(user, %{balance: user.balance - price}))
+        # if not monthly
+        Repo.update!( Changeset.change(user, %{balance: Float.ceil(user.balance - price, 2)}))
+
+
         case Multi.new
               |> Multi.update(:parking_spot, ParkingSpot.changeset(parkingSpot, %{}) |> Changeset.put_change(:is_available, true))
               |> Multi.update(:booking, Booking.changeset(booking, %{}) |> Changeset.put_change(:is_finished, true))

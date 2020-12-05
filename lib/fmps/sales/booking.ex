@@ -12,6 +12,8 @@ defmodule Fmps.Sales.Booking do
 
     
     field :is_finished, :boolean, default: false
+    field :is_paid, :boolean, default: false
+    field :price, :float, default: 0.0
 
     timestamps()
   end
@@ -19,7 +21,7 @@ defmodule Fmps.Sales.Booking do
   @doc false
   def changeset(booking, attrs) do
     booking
-    |> cast(attrs, [:is_hourly, :start_time, :leaving_time, :is_finished])
+    |> cast(attrs, [:is_hourly, :start_time, :leaving_time, :is_finished,  :is_paid, :price])
     |> validate_required([:is_hourly, :start_time])
     |> validate_hours(:start_time, :leaving_time, "Leaving time must be later than start time")
   end

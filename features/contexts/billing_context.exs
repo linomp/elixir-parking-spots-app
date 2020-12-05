@@ -102,11 +102,14 @@ defmodule BillingContext do
 
   when_ ~r/^I go to My Ongoing Booking page$/, fn state ->
     navigate_to("/ongoing-booking")
+    :timer.sleep(2000)
     {:ok, state}
   end
 
   and_ ~r/^click on button to pay for my ongoing real-time booking$/, fn state ->
     click({:id, "pay-real-time"})
+    :timer.sleep(2000)
+
     {:ok, state}
   end
 

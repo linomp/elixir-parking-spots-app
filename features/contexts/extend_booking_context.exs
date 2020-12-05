@@ -112,12 +112,12 @@ defmodule ExtendBookingContext do
     :timer.sleep(1000)
 
     click({:id, "submit_booking"})
+    :timer.sleep(2000)
 
     {:ok, state}
   end
 
   then_ ~r/^I get a confirmation message$/, fn state ->
-    :timer.sleep(2000)
 
     assert visible_in_page? ~r/Booking extended successfully/
     assert visible_in_page? ~r/EXAMPLE_ADDRESS/
