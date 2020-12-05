@@ -23,12 +23,12 @@ defmodule FmpsWeb.MywalletController do
           render(conn, "mywallet.html", user: newData, changeset: changeset)
         else
           conn
-          |> put_flash(:info, "Invalid input")
+          |> put_flash(:error, "Invalid input")
           |> redirect(to: Routes.mywallet_path(conn, :index))
         end
       rescue
         _ -> conn
-             |> put_flash(:info, "Invalid input")
+             |> put_flash(:error, "Invalid input")
              |> redirect(to: Routes.mywallet_path(conn, :index))
       end
     end

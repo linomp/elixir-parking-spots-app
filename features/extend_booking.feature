@@ -11,3 +11,4 @@ Feature: Extending a booking
         And I click the Extend button
         And enter a new leaving hour for my ongoing booking
         Then I get a confirmation message
+        And I get a confirmation of payment message

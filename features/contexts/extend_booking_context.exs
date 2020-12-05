@@ -125,4 +125,10 @@ defmodule ExtendBookingContext do
 
     {:ok, state}
   end
+
+  and_ ~r/^I get a confirmation of payment message$/, fn state ->
+    assert visible_in_page? ~r/Payment done/
+    {:ok, state}
+  end
+
 end

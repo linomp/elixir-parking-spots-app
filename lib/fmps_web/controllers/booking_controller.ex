@@ -22,13 +22,18 @@ defmodule FmpsWeb.BookingController do
     # Read parking id from cookie (previously set in show)
     parkingSpot = Repo.get!(ParkingSpot, conn.cookies["parking_spot_id"])
 
+    # TODO: unit test to validate user has enough money
+    # TODO: validate user has enough money in wallet
+    # TODO: unit test to validate balance is updated
+    # TODO: charge user
+
     case Sales.create_booking(%{"bookingParams"=>booking_params, "user"=>user, "parkingSpot"=>parkingSpot}) do
-      {:ok, _booking} ->
+      {:ok, booking} ->
 
         Ecto.Changeset.change(parkingSpot, %{is_available: false}) |> Repo.update!()
 
         conn
-        |> put_flash(:info, "Booking created successfully.")
+        |> put_flash(:info, "#{if booking.is_hourly do "Payment done. " else "" end}Booking created successfully.")
         |> redirect(to: Routes.ongoing_booking_path(conn, :index))
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -53,31 +58,35 @@ defmodule FmpsWeb.BookingController do
   def update(conn, %{"id" => id, "booking" => booking_params}) do
     booking = Sales.get_booking!(id)
 
-    # wrap in try, in case Time parsing fails
+     # TODO: unit test to validate user has enough money
+     # TODO: validate user has enough money in wallet
+     # TODO: unit test to validate balance is updated
+     # TODO: charge user
+
     try do
-      # anything other than the new leaving time being greater than the original leaving time,
-      # is interpreted as invalid
       leavingTimeParams = Map.get(booking_params, "leaving_time")
 
       {_status, newLeavingTime} = Time.new(Map.get(leavingTimeParams,"hour") |> String.to_integer, Map.get(leavingTimeParams,"minute") |> String.to_integer, 0, 0)
 
+      # Anything other than the new leaving time being greater than the original leaving time,
+      # is interpreted as invalid
       case Time.compare(newLeavingTime, booking.leaving_time) do
         :gt ->  case Sales.update_booking(booking, booking_params) do
                   {:ok, _booking} ->
                     conn
-                    |> put_flash(:info, "Booking extended successfully")
+                    |> put_flash(:info, "Payment done. Booking extended successfully.")
                     |> redirect(to: Routes.ongoing_booking_path(conn, :index))
 
                   {:error, %Ecto.Changeset{} = changeset} ->
                     render(conn, "edit.html", booking: booking, changeset: changeset)
                 end
         _ ->    conn
-                |> put_flash(:info, "New leaving time must be later than original leaving time")
+                |> put_flash(:error, "New leaving time must be later than original leaving time")
                 |> redirect(to: Routes.booking_path(conn, :edit, booking))
       end
     rescue
       _ -> conn
-            |> put_flash(:info, "Something went wrong.")
+            |> put_flash(:error, "Something went wrong.")
             |> redirect(to: Routes.booking_path(conn, :edit, booking))
     end
 
