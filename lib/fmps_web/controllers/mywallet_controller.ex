@@ -18,7 +18,7 @@ defmodule FmpsWeb.MywalletController do
       try do
         first = elem(Float.parse(input_money),0)
         if is_number(first) && first>0 do
-          changeset = Changeset.change(user, %{balance: user.balance + first})
+          changeset = Changeset.change(user, %{balance: Float.ceil(user.balance + first, 2) })
           newData = changeset |> Repo.update!()
           render(conn, "mywallet.html", user: newData, changeset: changeset)
         else

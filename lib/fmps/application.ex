@@ -14,9 +14,10 @@ defmodule Fmps.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Fmps.PubSub},
       # Start the Endpoint (http/https)
-      FmpsWeb.Endpoint
+      FmpsWeb.Endpoint,
       # Start a worker by calling: Fmps.Worker.start_link(arg)
       # {Fmps.Worker, arg}
+      { Fmps.Periodically, [] }
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

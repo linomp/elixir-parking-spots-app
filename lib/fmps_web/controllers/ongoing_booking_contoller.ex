@@ -52,7 +52,7 @@ defmodule FmpsWeb.OngoingBookingController do
         |> redirect(to: Routes.mywallet_path(conn, :index))
       else
 
-        Repo.update!( Changeset.change(user, %{balance: user.balance - price}))
+        Repo.update!( Changeset.change(user, %{balance: Float.ceil(user.balance - price, 2)}))
         case Multi.new
               |> Multi.update(:parking_spot, ParkingSpot.changeset(parkingSpot, %{}) |> Changeset.put_change(:is_available, true))
               |> Multi.update(:booking, Booking.changeset(booking, %{}) |> Changeset.put_change(:is_finished, true))
