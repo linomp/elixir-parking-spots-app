@@ -112,6 +112,7 @@ defmodule BookParkingContext do
 
   and_ ~r/^I click submit booking$/, fn state ->
     click({:id, "submit_booking"})
+    :timer.sleep(2000)
     {:ok, state}
   end
 
