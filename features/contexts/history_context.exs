@@ -104,6 +104,14 @@ defmodule HistoryContext do
 
   then_ ~r/^I see the table of my booking payment history$/, fn state ->
     
+    assert visible_in_page? ~r/Address/
+    assert visible_in_page? ~r/Is hourly type/
+    assert visible_in_page? ~r/Starting time/
+    assert visible_in_page? ~r/Leaving time/
+    assert visible_in_page? ~r/Price/
+
+    assert (find_all_elements(:class, "bookings-history") |> Enum.count) > 0
+    {:ok, state}
   end
 
 
