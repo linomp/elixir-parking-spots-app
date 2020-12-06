@@ -37,26 +37,41 @@ defmodule FmpsWeb.BookingController do
               end
 
       # if not monthly
-      if Booking.changeset(%Booking{}, booking_params).valid? && price > user.balance do
+      if !(user.is_monthly_payment) and Booking.changeset(%Booking{}, booking_params).valid? && price > user.balance do
         raise NotEnoughFundsError
       end
 
-      case Sales.create_booking(%{"bookingParams"=>booking_params, "user"=>user, "parkingSpot"=>parkingSpot}) do
-        {:ok, booking} ->
+      if !(user.is_monthly_payment) do
+        case Sales.create_booking(%{"bookingParams"=>booking_params, "user"=>user, "parkingSpot"=>parkingSpot, "is_paid"=>true, "price"=>price}) do
+          {:ok, booking} ->
 
-          Ecto.Changeset.change(parkingSpot, %{is_available: false}) |> Repo.update!()
+            Ecto.Changeset.change(parkingSpot, %{is_available: false}) |> Repo.update!()
 
-          # if not monthly
-          if booking.is_hourly do
-            Ecto.Changeset.change(user, %{balance: user.balance - price}) |> Repo.update!()
-          end
+            # if not monthly
+            if booking.is_hourly do
+              Ecto.Changeset.change(user, %{balance: user.balance - price}) |> Repo.update!()
+            end
 
-          conn
-          |> put_flash(:info, "#{if booking.is_hourly do "Payment done. " else "" end}Booking created successfully.")
-          |> redirect(to: Routes.ongoing_booking_path(conn, :index))
+            conn
+            |> put_flash(:info, "#{if booking.is_hourly do "Payment done. " else "" end}Booking created successfully.")
+            |> redirect(to: Routes.ongoing_booking_path(conn, :index))
 
-        {:error, %Ecto.Changeset{} = changeset} ->
-          render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>parkingSpot.address})
+          {:error, %Ecto.Changeset{} = changeset} ->
+            render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>parkingSpot.address})
+        end
+      else
+        case Sales.create_booking(%{"bookingParams"=>booking_params, "user"=>user, "parkingSpot"=>parkingSpot, "price"=>price}) do
+          {:ok, booking} ->
+
+            Ecto.Changeset.change(parkingSpot, %{is_available: false}) |> Repo.update!()
+
+            conn
+            |> put_flash(:info, "#{if booking.is_hourly do "Payment done. " else "" end}Booking created successfully.")
+            |> redirect(to: Routes.ongoing_booking_path(conn, :index))
+
+          {:error, %Ecto.Changeset{} = changeset} ->
+            render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>parkingSpot.address})
+        end
       end
 
     rescue
@@ -101,22 +116,39 @@ defmodule FmpsWeb.BookingController do
                 difference = newPrice - oldPrice
 
                 # if not monthly
-                if Booking.changeset(%Booking{}, booking_params).valid? && difference > user.balance do
+                if !(user.is_monthly_payment) and Booking.changeset(%Booking{}, booking_params).valid? && difference > user.balance do
                   raise NotEnoughFundsError
                 end
 
-                case Sales.update_booking(booking, booking_params) do
-                  {:ok, _booking} ->
+                if !(user.is_monthly_payment) do
+                  case Sales.update_booking(booking, booking_params) do
+                    {:ok, booking} ->
 
-                    # if not monthly
-                    Ecto.Changeset.change(user, %{balance: user.balance - difference}) |> Repo.update!()
+                      Sales.update_booking(booking, %{"price"=>newPrice})
 
-                    conn
-                    |> put_flash(:info, "Payment done. Booking extended successfully.")
-                    |> redirect(to: Routes.ongoing_booking_path(conn, :index))
+                      Ecto.Changeset.change(user, %{balance: user.balance - difference}) |> Repo.update!()
 
-                  {:error, %Ecto.Changeset{} = changeset} ->
-                    render(conn, "edit.html", booking: booking, changeset: changeset)
+                      conn
+                      |> put_flash(:info, "Payment done. Booking extended successfully.")
+                      |> redirect(to: Routes.ongoing_booking_path(conn, :index))
+
+                    {:error, %Ecto.Changeset{} = changeset} ->
+                      render(conn, "edit.html", booking: booking, changeset: changeset)
+                  end
+                else
+                  case Sales.update_booking(booking, booking_params) do
+                    {:ok, booking} ->
+
+                      Sales.update_booking(booking, %{"price"=>newPrice})
+
+                      conn
+                      |> put_flash(:info, "Payment done. Booking extended successfully.")
+                      |> redirect(to: Routes.ongoing_booking_path(conn, :index))
+
+                    {:error, %Ecto.Changeset{} = changeset} ->
+                      render(conn, "edit.html", booking: booking, changeset: changeset)
+                  end
+            
                 end
         _ ->    conn
                 |> put_flash(:error, "New leaving time must be later than original leaving time")
