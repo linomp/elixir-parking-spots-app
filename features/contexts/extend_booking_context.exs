@@ -112,7 +112,7 @@ defmodule ExtendBookingContext do
     :timer.sleep(1000)
 
     click({:id, "submit_booking"})
-    :timer.sleep(2000)
+    :timer.sleep(5000)
 
     {:ok, state}
   end

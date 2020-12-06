@@ -33,4 +33,8 @@ defmodule WhiteBreadConfig do
             context:       ExtendBookingContext,
             feature_paths: ["features/extend_booking.feature"]
 
+      suite name:          "Booking payment history",
+            context:       HistoryContext,
+            feature_paths: ["features/history.feature"]
+
 end

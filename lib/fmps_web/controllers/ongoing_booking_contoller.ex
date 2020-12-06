@@ -60,7 +60,7 @@ defmodule FmpsWeb.OngoingBookingController do
 
         case Multi.new
               |> Multi.update(:parking_spot, ParkingSpot.changeset(parkingSpot, %{}) |> Changeset.put_change(:is_available, true))
-              |> Multi.update(:booking, Booking.changeset(booking, %{}) |> Changeset.put_change(:is_finished, true))
+              |> Multi.update(:booking, Booking.changeset(booking, %{}) |> Changeset.put_change(:is_finished, true) |> Changeset.put_change(:price, price))
               |> Repo.transaction do
                 {:ok, _} ->
                   IO.inspect "Success"

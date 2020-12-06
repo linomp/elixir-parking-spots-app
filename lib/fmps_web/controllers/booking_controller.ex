@@ -60,7 +60,7 @@ defmodule FmpsWeb.BookingController do
             render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>parkingSpot.address})
         end
       else
-        case Sales.create_booking(%{"bookingParams"=>booking_params, "user"=>user, "parkingSpot"=>parkingSpot, "price"=>price}) do
+        case Sales.create_booking(%{"bookingParams"=>booking_params, "user"=>user, "parkingSpot"=>parkingSpot, "is_paid"=>false, "price"=>price}) do
           {:ok, booking} ->
 
             Ecto.Changeset.change(parkingSpot, %{is_available: false}) |> Repo.update!()
@@ -122,9 +122,10 @@ defmodule FmpsWeb.BookingController do
 
                 if !(user.is_monthly_payment) do
                   case Sales.update_booking(booking, booking_params) do
-                    {:ok, booking} ->
+                    {:ok, _booking} ->
 
-                      Sales.update_booking(booking, %{"price"=>newPrice})
+                      newBooking = Repo.get!(Booking, booking.id)
+                      Sales.update_booking(newBooking, %{"price"=>newPrice})
 
                       Ecto.Changeset.change(user, %{balance: user.balance - difference}) |> Repo.update!()
 
@@ -137,9 +138,10 @@ defmodule FmpsWeb.BookingController do
                   end
                 else
                   case Sales.update_booking(booking, booking_params) do
-                    {:ok, booking} ->
+                    {:ok, _booking} ->
 
-                      Sales.update_booking(booking, %{"price"=>newPrice})
+                      newBooking = Repo.get!(Booking, booking.id)
+                      Sales.update_booking(newBooking, %{"price"=>newPrice})
 
                       conn
                       |> put_flash(:info, "Payment done. Booking extended successfully.")

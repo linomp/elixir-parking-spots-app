@@ -1,0 +1,37 @@
+<h1 id="destination-label">My history</h1>
+
+<br/>
+
+  <%= if Enum.count(@bookings) == 0 do%>
+
+    History is empty
+
+  <% else %>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Address</th>
+          <th>Is hourly type</th>
+          <th>Starting time</th>
+          <th>Leaving time</th>
+          <th>Price</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      <%= for b <- @bookings do %>
+          <tr class="bookings-history">
+            <td><%= b.parking_spot.address %></td>
+            <td><%= b.is_hourly %></td>
+            <td><%= b.start_time %></td>
+            <td><%= b.leaving_time %></td>
+            <td><%= b.price %></td>
+          </tr>
+      <% end %>
+
+      </tbody>
+    </table>
+
+
+  <% end %>
