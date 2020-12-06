@@ -228,6 +228,36 @@ defmodule FmpsWeb.BookingControllerTest do
     end
 
 
+
+    test "Parking lots are released 2 minutes before bookings expire", %{conn: conn} do
+      query = from p in ParkingSpot, where: p.is_available
+      [selectedLot | _] = Repo.all(query)
+
+      offset = (60*2)+10
+      currentTime = Time.utc_now()
+      currenTimePlusOffset = Time.add(currentTime, offset, :second)
+
+      # create a booking
+      conn = get conn, "/booking/#{selectedLot.id}"
+      conn = post conn, "/booking", %{"booking"=> %{is_hourly: true, leaving_time: currenTimePlusOffset, start_time: currentTime}}
+      conn = get(conn, redirected_to(conn))
+
+      # Booking should succeed
+      assert html_response(conn, 200) =~ ~r/Booking created successfully/
+
+      # check if parking spot was taken
+      selectedLot = Repo.get_by(ParkingSpot, id: selectedLot.id)
+      assert !selectedLot.is_available
+
+      # wait for booking to expire
+      :timer.sleep(10000)
+
+      # check if parking spot was released
+      selectedLot = Repo.get_by(ParkingSpot, id: selectedLot.id)
+      assert selectedLot.is_available
+    end
+
+
   end
 
 

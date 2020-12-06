@@ -150,7 +150,7 @@ defmodule FmpsWeb.BookingController do
                     {:error, %Ecto.Changeset{} = changeset} ->
                       render(conn, "edit.html", booking: booking, changeset: changeset)
                   end
-            
+
                 end
         _ ->    conn
                 |> put_flash(:error, "New leaving time must be later than original leaving time")
