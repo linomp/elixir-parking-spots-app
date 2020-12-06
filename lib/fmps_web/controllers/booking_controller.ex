@@ -57,7 +57,7 @@ defmodule FmpsWeb.BookingController do
             |> redirect(to: Routes.ongoing_booking_path(conn, :index))
 
           {:error, %Ecto.Changeset{} = changeset} ->
-            render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>parkingSpot.address})
+            render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>parkingSpot.address}, is_monthly_payment: user.is_monthly_payment)
         end
       else
         case Sales.create_booking(%{"bookingParams"=>booking_params, "user"=>user, "parkingSpot"=>parkingSpot, "is_paid"=>false, "price"=>price}) do
@@ -70,7 +70,7 @@ defmodule FmpsWeb.BookingController do
             |> redirect(to: Routes.ongoing_booking_path(conn, :index))
 
           {:error, %Ecto.Changeset{} = changeset} ->
-            render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>parkingSpot.address})
+            render(conn, "new.html", changeset: changeset, parkingSpot: %{:address=>parkingSpot.address}, is_monthly_payment: user.is_monthly_payment)
         end
       end
 
@@ -84,11 +84,12 @@ defmodule FmpsWeb.BookingController do
   end
 
   def show(conn, %{"id" => id}) do
+    user = Fmps.Authentication.load_current_user(conn)
     booking = Sales.change_booking(%Booking{})
     parkingSpotData = Repo.get!(ParkingSpot, id) |> Repo.preload(:parking_category)
     # Set the parking id in a cookie, to read when booking creation needs to be re-tried
     conn = put_resp_cookie(conn, "parking_spot_id", "#{parkingSpotData.id}")
-    render(conn, "new.html", changeset: booking, parkingSpot: parkingSpotData)
+    render(conn, "new.html", changeset: booking, parkingSpot: parkingSpotData, is_monthly_payment: user.is_monthly_payment)
   end
 
   def edit(conn, %{"id" => id}) do
