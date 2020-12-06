@@ -47,24 +47,32 @@ defmodule FmpsWeb.OngoingBookingController do
       price = Fmps.Prices.getParkingSpotPrices(time, parkingSpot.parking_category).priceIfRealTime
 
       # if not monthly
-      if user.balance < price do
+      if user.balance < price and !(user.is_monthly_payment) do
         conn
         |> put_flash(:info, "Not enough balance, price is #{price} Euros")
         |> redirect(to: Routes.mywallet_path(conn, :index))
       else
 
         # if not monthly
-        Repo.update!( Changeset.change(user, %{balance: Float.ceil(user.balance - price, 2)}))
-
+        if !(user.is_monthly_payment) do
+          Repo.update!( Changeset.change(user, %{balance: Float.ceil(user.balance - price, 2)}))
+        end
 
         case Multi.new
               |> Multi.update(:parking_spot, ParkingSpot.changeset(parkingSpot, %{}) |> Changeset.put_change(:is_available, true))
-              |> Multi.update(:booking, Booking.changeset(booking, %{}) |> Changeset.put_change(:is_finished, true))
+              |> Multi.update(:booking, Booking.changeset(booking, %{}) |> Changeset.put_change(:is_finished, true) |> Changeset.put_change(:price, price))
               |> Repo.transaction do
                 {:ok, _} ->
                   IO.inspect "Success"
                 {:error, _} ->
                   IO.inspect "Error"
+        end
+
+        newBooking = Repo.get!(Booking, booking.id)
+
+        # set is paid
+        if !(user.is_monthly_payment) do
+          Repo.update!( Changeset.change(newBooking, %{is_paid: true}))
         end
 
         conn

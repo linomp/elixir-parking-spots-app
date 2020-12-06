@@ -60,6 +60,8 @@ defmodule Fmps.Sales do
         |> Multi.insert(:booking, changeset
           |> Changeset.put_change(:user_id, attrs["user"].id)
           |> Changeset.put_change(:parking_spot_id, attrs["parkingSpot"].id)
+          |> Changeset.put_change(:is_paid, attrs["is_paid"])
+          |> Changeset.put_change(:price, attrs["price"])
         )
         |> Repo.transaction
         {:ok, booking}
