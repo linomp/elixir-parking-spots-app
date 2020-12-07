@@ -228,18 +228,18 @@ defmodule FmpsWeb.BookingControllerTest do
     end
 
 
-
-    test "Parking lots are released 2 minutes before bookings expire", %{conn: conn} do
+    test "Bookings expire and Parking lots are released", %{conn: conn} do
       query = from p in ParkingSpot, where: p.is_available
       [selectedLot | _] = Repo.all(query)
 
-      offset = (60*2)+10
+      # Make leaving time to be exactly 5 seconds from now
+      offset = 5
       currentTime = Time.utc_now()
-      currenTimePlusOffset = Time.add(currentTime, offset, :second)
+      testLeavingTime = Time.add(currentTime, offset, :second)
 
       # create a booking
       conn = get conn, "/booking/#{selectedLot.id}"
-      conn = post conn, "/booking", %{"booking"=> %{is_hourly: true, leaving_time: currenTimePlusOffset, start_time: currentTime}}
+      conn = post conn, "/booking", %{"booking"=> %{is_hourly: true, leaving_time: testLeavingTime, start_time: currentTime}}
       conn = get(conn, redirected_to(conn))
 
       # Booking should succeed
@@ -255,6 +255,36 @@ defmodule FmpsWeb.BookingControllerTest do
       # check if parking spot was released
       selectedLot = Repo.get_by(ParkingSpot, id: selectedLot.id)
       assert selectedLot.is_available
+
+      conn = get conn, "/ongoing-booking"
+      assert html_response(conn, 200) =~ ~r/There's currently no ongoing booking/
+
+    end
+
+
+    test "Bookings do not expire before leaving time", %{conn: conn} do
+      query = from p in ParkingSpot, where: p.is_available
+      [selectedLot | _] = Repo.all(query)
+
+      # Make leaving time to be exactly 15 seconds from now
+      offset = 15
+      currentTime = Time.utc_now()
+      testLeavingTime = Time.add(currentTime, offset, :second)
+
+      # create a booking
+      conn = get conn, "/booking/#{selectedLot.id}"
+      conn = post conn, "/booking", %{"booking"=> %{is_hourly: true, leaving_time: testLeavingTime, start_time: currentTime}}
+      conn = get(conn, redirected_to(conn))
+
+      # Booking should succeed
+      assert html_response(conn, 200) =~ ~r/Booking created successfully/
+
+      # wait only 5 seconds (not enough time)
+      :timer.sleep(5000)
+
+      conn = get conn, "/ongoing-booking"
+      refute html_response(conn, 200) =~ ~r/There's currently no ongoing booking/
+
     end
 
 

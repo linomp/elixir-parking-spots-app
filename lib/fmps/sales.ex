@@ -66,7 +66,7 @@ defmodule Fmps.Sales do
         |> Repo.transaction
 
         # start an async job to update booking status & parking lot availability at a future time
-        GenServer.start(Fmps.BookingExpiryTask, data.booking)
+        GenServer.start(Fmps.BookingExpiryTask, data.booking.id)
 
         {:ok, data.booking}
 
