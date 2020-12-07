@@ -41,6 +41,7 @@ defmodule FmpsWeb.Router do
     resources "/booking", BookingController
     resources "/settings", SettingsController
     resources "/history", HistoryController
+    resources "/notifications", NotificationController
   end
 
 
