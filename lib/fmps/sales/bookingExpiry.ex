@@ -5,14 +5,14 @@ defmodule Fmps.BookingExpiryTask do
 
   alias Fmps.Repo
   alias Fmps.Sales.{Booking}
-  #alias Fmps.Accounts.{User}
+  alias Fmps.Accounts.{User}
   #alias Fmps.Parking.{ParkingSpot}
 
   #alias Ecto.{Changeset, Multi}
 
   @parking_expiry_offset (if !is_nil(System.get_env("MIX_ENV")) && System.get_env("MIX_ENV") == "test" do -5 else -2*60 end)
   @notification_offset (if !is_nil(System.get_env("MIX_ENV")) && System.get_env("MIX_ENV") == "test" do -10 else -10*60 end)
-  @ignore_long_bookings (if !is_nil(System.get_env("MIX_ENV")) && System.get_env("MIX_ENV") == "test" do true else false end)
+  #@ignore_long_bookings (if !is_nil(System.get_env("MIX_ENV")) && System.get_env("MIX_ENV") == "test" do true else false end)
 
   defp printTime() do
     time =
@@ -53,7 +53,7 @@ defmodule Fmps.BookingExpiryTask do
 
     timeoutForBooking = Time.diff(booking.leaving_time, currentTimeInEstonia, :millisecond)
 
-    if timeoutForBooking > 0 && (timeoutForBooking < 60000) do
+    if (timeoutForBooking > 0) && (timeoutForBooking < 60000) do
       IO.puts "** ASYNC TASK STARTED FOR BOOKING: #{booking_id} **"
       IO.puts "User will be notified in: #{Float.round(timeoutForNotification/(1000), 2)} s"
       IO.puts "Parking will be released in: #{Float.round(timeoutForParking/(1000), 2)} s"
@@ -75,7 +75,6 @@ defmodule Fmps.BookingExpiryTask do
 
     try do
       booking = Repo.get_by!(Booking, id: booking_id) |> Repo.preload(:parking_spot)
-      #IO.inspect booking
 
       # Booking could be blocked from being marked as finished due to an extension
       if booking.block_next_update do
@@ -97,7 +96,6 @@ defmodule Fmps.BookingExpiryTask do
 
     try do
       booking = Repo.get_by!(Booking, id: booking_id) |> Repo.preload(:parking_spot)
-      #IO.inspect booking
 
       if !booking.block_next_update do
         IO.puts "** RELEASING PARKING SPOT #{booking.parking_spot.id} (BOOKING #{booking_id}) **"
@@ -116,12 +114,14 @@ defmodule Fmps.BookingExpiryTask do
 
     try do
       booking = Repo.get_by!(Booking, id: booking_id) |> Repo.preload(:parking_spot)
-      #IO.inspect booking
 
       if !booking.block_next_update do
         IO.puts "** CREATING NOTIFICATION (BOOKING #{booking_id}) **"
         printTimeDiff(init_time)
-        #Ecto.Changeset.change(booking.parking_spot, %{is_available: true}) |> Repo.update!()
+        user = Repo.get_by!(User, id: booking.user_id)
+        notification = Ecto.build_assoc(user, :notifications, %{address: booking.parking_spot.address, leaving_time: booking.leaving_time})
+        #IO.inspect notification
+        Repo.insert!(notification)
       end
 
       {:noreply, %{"booking_id"=>booking_id, "init_time"=>init_time}}

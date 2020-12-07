@@ -302,18 +302,18 @@ defmodule FmpsWeb.BookingControllerTest do
       assert html_response(conn, 200) =~ ~r/Booking created successfully/
 
       # wait for notification
-      #:timer.sleep(10000)
-#
+      :timer.sleep(10000)
+
       ## check if notification was created
-      #conn = get conn, "/notifications"
-      #refute html_response(conn, 200) =~ ~r/You have not received notifications/
-#
+      conn = get conn, "/notifications"
+      refute html_response(conn, 200) =~ ~r/You have not received notifications/
+
       ## wait for booking to expire
-      #:timer.sleep(8000)
-#
+      :timer.sleep(8000)
+
       ## check booking was finished
-      #conn = get conn, "/ongoing-booking"
-      #assert html_response(conn, 200) =~ ~r/There's currently no ongoing booking/
+      conn = get conn, "/ongoing-booking"
+      assert html_response(conn, 200) =~ ~r/There's currently no ongoing booking/
 
     end
 

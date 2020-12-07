@@ -12,6 +12,7 @@ defmodule Fmps.Accounts.User do
     field :is_monthly_payment, :boolean, default: false
 
     has_many :bookings, Fmps.Sales.Booking
+    has_many :notifications, Fmps.Sales.Notification
 
     timestamps()
     end
