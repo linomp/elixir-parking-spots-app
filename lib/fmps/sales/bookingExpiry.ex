@@ -53,7 +53,7 @@ defmodule Fmps.BookingExpiryTask do
 
     timeoutForBooking = Time.diff(booking.leaving_time, currentTimeInEstonia, :millisecond)
 
-    if timeoutForBooking > 0 && (@ignore_long_bookings && timeoutForBooking < 60000) do
+    if timeoutForBooking > 0 && (timeoutForBooking < 60000) do
       IO.puts "** ASYNC TASK STARTED FOR BOOKING: #{booking_id} **"
       IO.puts "User will be notified in: #{Float.round(timeoutForNotification/(1000), 2)} s"
       IO.puts "Parking will be released in: #{Float.round(timeoutForParking/(1000), 2)} s"
