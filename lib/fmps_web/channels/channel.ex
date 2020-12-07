@@ -3,11 +3,6 @@ defmodule FmpsWeb.NotificationChannel do
 
   def join("notifications:user", _message, socket) do
 
-
-    #IO.puts("**** SOCKET JOIN ****")
-    #IO.inspect socket
-    #IO.puts("*********")
-
     {:ok, socket}
   end
 

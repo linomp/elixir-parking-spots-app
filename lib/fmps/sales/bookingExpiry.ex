@@ -123,6 +123,9 @@ defmodule Fmps.BookingExpiryTask do
         user = Repo.get_by!(User, id: booking.user_id)
         notification = Ecto.build_assoc(user, :notifications, %{address: booking.parking_spot.address, leaving_time: booking.leaving_time})
         Repo.insert!(notification)
+
+        FmpsWeb.Endpoint.broadcast!("notifications:user", "new_notification", %{})
+
       end
 
       {:noreply, %{"booking_id"=>booking_id, "init_time"=>init_time}}
