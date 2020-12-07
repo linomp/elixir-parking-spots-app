@@ -16,6 +16,11 @@
               <%= if Fmps.Authentication.load_current_user(@conn) do %>
                 <li>Hello <%= Fmps.Authentication.load_current_user(@conn).name %></li>
                 <li><%= link "Log out", to: Routes.session_path(@conn, :delete, Fmps.Authentication.load_current_user(@conn)), method: "delete", id: "submit_logout" %></li>
+
+                <%= if Enum.count((Fmps.Authentication.load_current_user(@conn) |> Fmps.Repo.preload(:notifications)).notifications) > 0 do %>
+                  <li><%= link "New Notifications", to: Routes.notification_path(@conn, :index) %></li>
+                <% end %>
+
               <% else %>
                 <li><%= link "Log in", to: Routes.session_path(@conn, :new) %></li>
                 <li><%= link "Register", to: Routes.user_path(@conn, :new), id: "register_button" %></li>
