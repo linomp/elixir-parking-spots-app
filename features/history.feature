@@ -1,3 +1,4 @@
+# Show history of paid bookings (Listed in original requirements)
 Feature: Check my booking payment history
     As a user
     such that I am logged in

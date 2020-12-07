@@ -110,7 +110,7 @@ defmodule FmpsWeb.OngoingBookingControllerTest do
 
     end
 
-
+    # Requirement 4.3 TDD
     test "balance of the user is updated correctly after payment", %{conn: conn} do
 
       # put money into wallet

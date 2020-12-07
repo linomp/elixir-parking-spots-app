@@ -19,9 +19,8 @@ defmodule Fmps.Periodically do
     {:ok, state}
   end
 
+  # Requirement 4.5
   def handle_info(:work, state) do
-    # Do the work 
-    
     bookings = Fmps.Repo.all(Booking) |> Repo.preload(:user)
 
     for booking <- bookings do
@@ -39,7 +38,7 @@ defmodule Fmps.Periodically do
         end
       end
     end
-    
+
 
     schedule_work() # Reschedule once more
     {:noreply, state}

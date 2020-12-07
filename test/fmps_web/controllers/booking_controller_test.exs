@@ -67,7 +67,7 @@ defmodule FmpsWeb.BookingControllerTest do
         name: "Anna Karenina",
         email: "anna.karenina@gmail.com",
         licence_number: "ES345632",
-        balance: 100.0,
+        balance: 100.0, # Requirement 4.1 TDD
         password: "parool"
       })
 
@@ -99,6 +99,8 @@ defmodule FmpsWeb.BookingControllerTest do
   #end
 
   describe "Booking" do
+
+    # Requirement 3.1 TDD, 3.2 TDD, 4.1 TDD
     test "Creates a valid booking", %{conn: conn} do
 
       [firstLot | _] = Repo.all(ParkingSpot)
@@ -128,7 +130,7 @@ defmodule FmpsWeb.BookingControllerTest do
       assert html_response(conn, 200) =~ ~r/Leaving time must be later than start time/
     end
 
-
+    # Requirement 3.3 TDD
     test "Blocks parking spot availability after booking", %{conn: conn} do
 
       # Book specifically Neste spot
@@ -156,6 +158,7 @@ defmodule FmpsWeb.BookingControllerTest do
       refute html_response(conn, 200) =~ ~r/Neste/
     end
 
+    # Requirement 3.5 TDD, 4.2 TDD
     test "Allows to extend a booking", %{conn: conn} do
       query = from p in ParkingSpot, where: p.is_available
       [firstLot | _] = Repo.all(query)
@@ -227,7 +230,7 @@ defmodule FmpsWeb.BookingControllerTest do
       assert html_response(conn, 200) =~ ~r/New leaving time must be later than original leaving time/
     end
 
-
+    # Requirement 3.6 BDD
     test "Bookings expire and Parking lots are released", %{conn: conn} do
       query = from p in ParkingSpot, where: p.is_available
       [selectedLot | _] = Repo.all(query)
@@ -284,6 +287,7 @@ defmodule FmpsWeb.BookingControllerTest do
 
     end
 
+    # Requirement 3.4 TDD
     test "Notification is created before booking expires", %{conn: conn} do
       query = from p in ParkingSpot, where: p.is_available
       [selectedLot | _] = Repo.all(query)

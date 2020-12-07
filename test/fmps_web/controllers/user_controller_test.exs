@@ -20,6 +20,7 @@ defmodule FmpsWeb.UserControllerTest do
     email: nil
   }
 
+  # Requirement 1.1 TDD
   describe "user registration" do
     test "registers users with valid input", %{conn: conn} do
       conn = post(conn, Routes.user_path(conn, :create), user: @valid_user)

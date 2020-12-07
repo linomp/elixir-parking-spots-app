@@ -5,6 +5,10 @@ defmodule Fmps.BookingExpiryTask do
   alias Fmps.Sales.{Booking}
   alias Fmps.Accounts.{User}
 
+  # Time offsets from requirements
+  # parking release: 2 minutes before booking finishes
+  # notification: 10 minutes before booking finishes
+
   # Time offsets in dev
   # parking release: 30 seconds before booking finishes
   # notification: 1 minute before booking finishes
@@ -13,10 +17,16 @@ defmodule Fmps.BookingExpiryTask do
   # parking release: 5 seconds before booking finishes
   # notification: 10 seconds booking finishes
 
-  @parking_expiry_offset (if is_nil(System.get_env("MIX_ENV")) || System.get_env("MIX_ENV") == "dev" do -30 else -5 end)
-  @notification_offset (if is_nil(System.get_env("MIX_ENV")) || System.get_env("MIX_ENV") == "dev" do -60 else -10 end)
-  @ignore_long_bookings (if is_nil(System.get_env("MIX_ENV")) || System.get_env("MIX_ENV") == "dev" do false else true end)
+  # @parking_expiry_offset (if is_nil(System.get_env("MIX_ENV")) || System.get_env("MIX_ENV") == "dev" do -10 else -5 end)
+  # @notification_offset (if is_nil(System.get_env("MIX_ENV")) || System.get_env("MIX_ENV") == "dev" do -30 else -10 end)
+  # @ignore_long_bookings (if is_nil(System.get_env("MIX_ENV")) || System.get_env("MIX_ENV") == "dev" do false else true end)
 
+  @parking_expiry_offset (if is_nil(System.get_env("MIX_ENV")) || System.get_env("MIX_ENV") == "dev" || System.get_env("MIX_ENV") == "prod" do -2*60 else -5 end)
+  @notification_offset (if is_nil(System.get_env("MIX_ENV")) || System.get_env("MIX_ENV") == "dev" || System.get_env("MIX_ENV") == "prod" do -10*60 else -10 end)
+  @ignore_long_bookings (if is_nil(System.get_env("MIX_ENV")) || System.get_env("MIX_ENV") == "dev" || System.get_env("MIX_ENV") == "prod" do false else true end)
+
+
+  # Requirements 3.4, 3.6
 
   def init(booking_id) do
 
