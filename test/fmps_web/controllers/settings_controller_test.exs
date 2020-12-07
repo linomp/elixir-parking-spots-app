@@ -27,6 +27,7 @@ defmodule FmpsWeb.SettingsControllerTest do
       |> recycle
   end
 
+  # Requirement 4.4 TDD
   describe "update settings" do
       test "set to monthly payment type", %{conn: conn} do
         conn = put(conn, Routes.settings_path(conn, :update, 0), %{"user"=>%{"is_monthly_payment" => "true"}})

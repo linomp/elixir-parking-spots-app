@@ -1,3 +1,4 @@
+# Requirement 3.1 BDD, 3.2 BDD
 Feature: Booking a parking lot
     As a user
     such that I am logged in

@@ -85,6 +85,7 @@ defmodule FmpsWeb.SearchControllerTest do
   end
 
   describe "Parking spot search" do
+    # Requirement 2.1 TDD, 2.2 TDD
     test "Returns places within an arbitrary radius", %{conn: conn} do
       conn =
         post conn, "/search", %{
@@ -103,6 +104,7 @@ defmodule FmpsWeb.SearchControllerTest do
   end
 
   describe "Parking spot search with intended leaving hour" do
+    # Requirement 2.3 TDD, 2.4 TDD
     test "Returns places within an arbitrary radius + estimated prices", %{conn: conn} do
 
       conn =
