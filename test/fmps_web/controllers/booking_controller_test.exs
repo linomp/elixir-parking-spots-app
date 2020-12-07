@@ -232,10 +232,10 @@ defmodule FmpsWeb.BookingControllerTest do
       query = from p in ParkingSpot, where: p.is_available
       [selectedLot | _] = Repo.all(query)
 
-      # Make leaving time to be exactly 5 seconds from now
-      offset = 5
+      # Set booking to expire in 15 seconds from now
+      bookingDuration = 15
       currentTime = Time.add(Time.utc_now(), 2*3600)
-      testLeavingTime = Time.add(currentTime, offset, :second)
+      testLeavingTime = Time.add(currentTime, bookingDuration, :second)
 
       # create a booking
       conn = get conn, "/booking/#{selectedLot.id}"
@@ -246,7 +246,7 @@ defmodule FmpsWeb.BookingControllerTest do
       assert html_response(conn, 200) =~ ~r/Booking created successfully/
 
       # wait for booking to expire
-      :timer.sleep(10000)
+      :timer.sleep(20000)
 
       # check if parking spot was released
       selectedLot = Repo.get_by(ParkingSpot, id: selectedLot.id)
@@ -263,10 +263,10 @@ defmodule FmpsWeb.BookingControllerTest do
       query = from p in ParkingSpot, where: p.is_available
       [selectedLot | _] = Repo.all(query)
 
-      # Make leaving time to be exactly 15 seconds from now
-      offset = 15
+      # Set booking to expire in 30 seconds from now
+      bookingDuration = 30
       currentTime = Time.add(Time.utc_now(), 2*3600)
-      testLeavingTime = Time.add(currentTime, offset, :second)
+      testLeavingTime = Time.add(currentTime, bookingDuration, :second)
 
       # create a booking
       conn = get conn, "/booking/#{selectedLot.id}"
@@ -284,6 +284,38 @@ defmodule FmpsWeb.BookingControllerTest do
 
     end
 
+    test "Notification is created before booking expires", %{conn: conn} do
+      query = from p in ParkingSpot, where: p.is_available
+      [selectedLot | _] = Repo.all(query)
+
+      # Set booking to expire in 15 seconds from now
+      bookingDuration = 15
+      currentTime = Time.add(Time.utc_now(), 2*3600)
+      testLeavingTime = Time.add(currentTime, bookingDuration, :second)
+
+      # create a booking
+      conn = get conn, "/booking/#{selectedLot.id}"
+      conn = post conn, "/booking", %{"booking"=> %{is_hourly: true, leaving_time: testLeavingTime, start_time: currentTime}}
+      conn = get(conn, redirected_to(conn))
+
+      # Booking should succeed
+      assert html_response(conn, 200) =~ ~r/Booking created successfully/
+
+      # wait for notification
+      :timer.sleep(10000)
+
+      # check if notification was created
+      conn = get conn, "/notifications"
+      refute html_response(conn, 200) =~ ~r/You have not received notifications/
+
+      # wait for booking to expire
+      :timer.sleep(8000)
+
+      # check booking was finished
+      conn = get conn, "/ongoing-booking"
+      assert html_response(conn, 200) =~ ~r/There's currently no ongoing booking/
+
+    end
 
   end
 
