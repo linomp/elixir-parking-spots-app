@@ -55,8 +55,8 @@ defmodule Fmps.Sales do
     changeset = %Booking{} |> Booking.changeset(attrs["bookingParams"])
 
     case Ecto.Changeset.apply_action(changeset, :update) do
-      {:ok, booking} ->
-        Multi.new
+      {:ok, _} ->
+        {_, data} = Multi.new
         |> Multi.insert(:booking, changeset
           |> Changeset.put_change(:user_id, attrs["user"].id)
           |> Changeset.put_change(:parking_spot_id, attrs["parkingSpot"].id)
@@ -64,7 +64,11 @@ defmodule Fmps.Sales do
           |> Changeset.put_change(:price, attrs["price"])
         )
         |> Repo.transaction
-        {:ok, booking}
+
+        # start an async job to update booking status & parking lot availability at a future time
+        GenServer.start(Fmps.BookingExpiryTask, data.booking.id)
+
+        {:ok, data.booking}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:error, changeset}

@@ -130,6 +130,11 @@ defmodule FmpsWeb.BookingController do
 
                       Ecto.Changeset.change(user, %{balance: user.balance - difference}) |> Repo.update!()
 
+                      # Set flag to prevent previous async job to mark this booking as finished
+                      Ecto.Changeset.change(newBooking, %{block_next_update: true}) |> Repo.update!()
+                      # Start new job to finish extended version of this booking
+                      GenServer.start(Fmps.BookingExpiryTask, newBooking.id)
+
                       conn
                       |> put_flash(:info, "Payment done. Booking extended successfully.")
                       |> redirect(to: Routes.ongoing_booking_path(conn, :index))
@@ -144,6 +149,11 @@ defmodule FmpsWeb.BookingController do
                       newBooking = Repo.get!(Booking, booking.id)
                       Sales.update_booking(newBooking, %{"price"=>newPrice})
 
+                       # Set flag to prevent previous async job to mark this booking as finished
+                       Ecto.Changeset.change(newBooking, %{block_next_update: true}) |> Repo.update!()
+                       # Start new job to finish extended version of this booking
+                       GenServer.start(Fmps.BookingExpiryTask, newBooking.id)
+
                       conn
                       |> put_flash(:info, "Payment done. Booking extended successfully.")
                       |> redirect(to: Routes.ongoing_booking_path(conn, :index))
@@ -151,7 +161,7 @@ defmodule FmpsWeb.BookingController do
                     {:error, %Ecto.Changeset{} = changeset} ->
                       render(conn, "edit.html", booking: booking, changeset: changeset)
                   end
-            
+
                 end
         _ ->    conn
                 |> put_flash(:error, "New leaving time must be later than original leaving time")

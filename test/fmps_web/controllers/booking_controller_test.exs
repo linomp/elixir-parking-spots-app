@@ -228,6 +228,63 @@ defmodule FmpsWeb.BookingControllerTest do
     end
 
 
+    test "Bookings expire and Parking lots are released", %{conn: conn} do
+      query = from p in ParkingSpot, where: p.is_available
+      [selectedLot | _] = Repo.all(query)
+
+      # Make leaving time to be exactly 5 seconds from now
+      offset = 5
+      currentTime = Time.add(Time.utc_now(), 2*3600)
+      testLeavingTime = Time.add(currentTime, offset, :second)
+
+      # create a booking
+      conn = get conn, "/booking/#{selectedLot.id}"
+      conn = post conn, "/booking", %{"booking"=> %{is_hourly: true, leaving_time: testLeavingTime, start_time: currentTime}}
+      conn = get(conn, redirected_to(conn))
+
+      # Booking should succeed
+      assert html_response(conn, 200) =~ ~r/Booking created successfully/
+
+      # wait for booking to expire
+      :timer.sleep(10000)
+
+      # check if parking spot was released
+      selectedLot = Repo.get_by(ParkingSpot, id: selectedLot.id)
+      assert selectedLot.is_available
+
+      # check booking was finished
+      conn = get conn, "/ongoing-booking"
+      assert html_response(conn, 200) =~ ~r/There's currently no ongoing booking/
+
+    end
+
+
+    test "Bookings do not expire before leaving time", %{conn: conn} do
+      query = from p in ParkingSpot, where: p.is_available
+      [selectedLot | _] = Repo.all(query)
+
+      # Make leaving time to be exactly 15 seconds from now
+      offset = 15
+      currentTime = Time.add(Time.utc_now(), 2*3600)
+      testLeavingTime = Time.add(currentTime, offset, :second)
+
+      # create a booking
+      conn = get conn, "/booking/#{selectedLot.id}"
+      conn = post conn, "/booking", %{"booking"=> %{is_hourly: true, leaving_time: testLeavingTime, start_time: currentTime}}
+      conn = get(conn, redirected_to(conn))
+
+      # Booking should succeed
+      assert html_response(conn, 200) =~ ~r/Booking created successfully/
+
+      # wait only 5 seconds (not enough time)
+      :timer.sleep(5000)
+
+      conn = get conn, "/ongoing-booking"
+      refute html_response(conn, 200) =~ ~r/There's currently no ongoing booking/
+
+    end
+
+
   end
 
 
