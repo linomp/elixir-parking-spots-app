@@ -1,0 +1,31 @@
+<h1 id="destination-label">Booking Expiry Notifications</h1>
+
+<br/>
+
+  <%= if Enum.count(@notifications) == 0 do%>
+
+    You have not received notifications
+
+  <% else %>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Address</th>
+          <th>Expiry</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      <%= for n <- @notifications do %>
+          <tr class="notifications">
+            <td><%= n.address %></td>
+            <td><%= n.leaving_time %></td>
+          </tr>
+      <% end %>
+
+      </tbody>
+    </table>
+
+
+  <% end %>

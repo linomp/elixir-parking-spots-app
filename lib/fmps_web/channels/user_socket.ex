@@ -2,7 +2,7 @@ defmodule FmpsWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", FmpsWeb.RoomChannel
+  channel "notifications:*", FmpsWeb.NotificationChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
