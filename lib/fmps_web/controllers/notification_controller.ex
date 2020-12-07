@@ -9,9 +9,11 @@ defmodule FmpsWeb.NotificationController do
   def index(conn, _params) do
 
     user = Fmps.Authentication.load_current_user(conn) |> Repo.preload(:notifications)
-    #query = from n in Notification, where: n.user_id == ^user.id
-    #notifications = Repo.all(query)
-    IO.inspect user.notifications
+
+    # Mark notifications as read
+    from(n in Notification, where: n.user_id == ^user.id)
+    |> Repo.update_all(set: [is_unread: false])
+
     render(conn, "index.html", notifications: user.notifications)
   end
 

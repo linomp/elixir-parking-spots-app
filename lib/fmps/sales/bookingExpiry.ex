@@ -37,15 +37,20 @@ defmodule Fmps.BookingExpiryTask do
 
     notificationTime = Time.add(booking.leaving_time, @notification_offset, :second)
     timeoutForNotification = Time.diff(notificationTime, currentTimeInEstonia, :millisecond)
+    timeoutForNotification = if timeoutForNotification > 0 do
+                              timeoutForNotification
+                            else
+                              1000
+                            end
 
     # hardcoded upper limit, just for cleaner output in testing
     if @ignore_long_bookings do
       if (timeoutForBooking > 0) && (timeoutForBooking < 60000) do
         IO.puts("[debug] ENV: #{System.get_env("MIX_ENV")}\nparking_expiry_offset: #{@parking_expiry_offset}\nnotification_offset: #{@notification_offset}")
         IO.puts "\n** ASYNC TASK STARTED FOR BOOKING: #{booking_id} **"
-          <> "\nUser will be notified in: #{Float.round(timeoutForNotification/(1000), 2)} s"
-          <> "\nParking will be released in: #{Float.round(timeoutForParking/(1000), 2)} s"
-          <> "\nBooking will finish in: #{Float.round(timeoutForBooking/(1000), 2)} s\n"
+          <> "\nUser will be notified at: #{addAndGetStr(timeoutForNotification)}"
+          <> "\nParking will be released at: #{addAndGetStr(timeoutForParking)}"
+          <> "\nBooking will finish at: #{addAndGetStr(timeoutForBooking)}\n"
 
         Process.send_after(self(), :finish_booking, timeoutForBooking)
         Process.send_after(self(), :release_parking, timeoutForParking)
@@ -55,9 +60,9 @@ defmodule Fmps.BookingExpiryTask do
       if (timeoutForBooking > 0) do
         IO.puts("[debug] ENV: #{System.get_env("MIX_ENV")}\nparking_expiry_offset: #{@parking_expiry_offset}\nnotification_offset: #{@notification_offset}")
         IO.puts "\n** ASYNC TASK STARTED FOR BOOKING: #{booking_id} **"
-          <> "\nUser will be notified in: #{Float.round(timeoutForNotification/(1000), 2)} s"
-          <> "\nParking will be released in: #{Float.round(timeoutForParking/(1000), 2)} s"
-          <> "\nBooking will finish in: #{Float.round(timeoutForBooking/(1000), 2)} s\n"
+          <> "\nUser will be notified at: #{addAndGetStr(timeoutForNotification)}"
+          <> "\nParking will be released at: #{addAndGetStr(timeoutForParking)}"
+          <> "\nBooking will finish at: #{addAndGetStr(timeoutForBooking)}\n"
 
         Process.send_after(self(), :finish_booking, timeoutForBooking)
         Process.send_after(self(), :release_parking, timeoutForParking)
@@ -80,7 +85,7 @@ defmodule Fmps.BookingExpiryTask do
       if booking.block_next_update do
         Ecto.Changeset.change(booking, %{block_next_update: false}) |> Repo.update!()
       else
-        IO.puts "** FINISHING BOOKING #{booking_id} **" <> strTimeDiff(init_time)
+        IO.puts "** FINISHING BOOKING #{booking_id} - #{booking.parking_spot.address}**" <> currentTimeStr() <> strTimeDiff(init_time)
         Ecto.Changeset.change(booking, %{is_finished: true, block_next_update: false}) |> Repo.update!()
       end
 
@@ -97,7 +102,7 @@ defmodule Fmps.BookingExpiryTask do
       booking = Repo.get_by!(Booking, id: booking_id) |> Repo.preload(:parking_spot)
 
       if !booking.block_next_update do
-        IO.puts "** RELEASING PARKING SPOT #{booking.parking_spot.id} (BOOKING #{booking_id}) **" <> strTimeDiff(init_time)
+        IO.puts "** RELEASING PARKING SPOT #{booking.parking_spot.id} (BOOKING #{booking_id} - #{booking.parking_spot.address}) **"  <> currentTimeStr() <> strTimeDiff(init_time)
         Ecto.Changeset.change(booking.parking_spot, %{is_available: true}) |> Repo.update!()
       end
 
@@ -114,8 +119,7 @@ defmodule Fmps.BookingExpiryTask do
       booking = Repo.get_by!(Booking, id: booking_id) |> Repo.preload(:parking_spot)
 
       if !booking.block_next_update do
-        IO.puts "** CREATING NOTIFICATION (BOOKING #{booking_id}) **"
-        strTimeDiff(init_time)
+        IO.puts "** CREATING NOTIFICATION (BOOKING #{booking_id}) **" <> currentTimeStr() <> strTimeDiff(init_time)
         user = Repo.get_by!(User, id: booking.user_id)
         notification = Ecto.build_assoc(user, :notifications, %{address: booking.parking_spot.address, leaving_time: booking.leaving_time})
         Repo.insert!(notification)
@@ -136,6 +140,23 @@ defmodule Fmps.BookingExpiryTask do
     diff = Time.diff(time, init_time, :second)
 
     "\nTime elapsed: #{diff} s\n"
+  end
+
+  defp addAndGetStr(millis) do
+    DateTime.utc_now()
+      |> DateTime.to_time()
+      |> Time.add(2*3600)
+      |> Time.add(millis, :millisecond)
+      |> Time.to_iso8601()
+  end
+
+  defp currentTimeStr() do
+    timestr = DateTime.utc_now()
+              |> DateTime.to_time()
+              |> Time.add(2*3600)
+              |> Time.to_iso8601()
+
+      "\nCurrent Time: #{timestr}"
   end
 
 
