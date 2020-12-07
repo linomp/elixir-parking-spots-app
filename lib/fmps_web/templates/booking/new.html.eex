@@ -1,6 +1,9 @@
 <h1>Booking a parking lot at <%= @parkingSpot.address %></h1>
-
- <h3>Monthly payment is currently deactivated</h1>
+<%= if @is_monthly_payment do %>
+    <h3>Monthly payment is currently activated, which means you will be charged for all your payments at the end of the month.</h1>
+<% else %>
+    <h3>Monthly payment is currently deactivated.</h1>
+<% end %>
 
 <%= render "form.html", Map.put(assigns, :action, Routes.booking_path(@conn, :create)) %>
 
