@@ -16,25 +16,28 @@ defmodule Fmps.BookingExpiryTask do
     time =
       DateTime.utc_now()
       |> DateTime.to_time()
+      |> Time.add(2*3600)
       |> Time.to_iso8601()
 
-    IO.puts("Time: #{time}\n")
+    IO.puts("Time in Estonia: #{time}\n")
   end
 
   def init(booking_id) do
 
     booking = Repo.get_by!(Booking, id: booking_id)
 
+    currentTimeInEstonia = Time.add(Time.utc_now(), 2*3600)  # TODO: fix some day
+
     timeWhenParkingShouldBeUpdated = Time.add(booking.leaving_time, @parking_expiry_offset, :second)
 
-    timeoutForParking = Time.diff(timeWhenParkingShouldBeUpdated, Time.utc_now(), :millisecond)
+    timeoutForParking = Time.diff(timeWhenParkingShouldBeUpdated, currentTimeInEstonia, :millisecond)
     timeoutForParking = if timeoutForParking > 0 do
                           timeoutForParking
                         else
                           10
                         end
 
-    timeoutForBooking = Time.diff(booking.leaving_time, Time.utc_now(), :millisecond)
+    timeoutForBooking = Time.diff(booking.leaving_time, currentTimeInEstonia, :millisecond)
 
     if timeoutForBooking > 0 do
       IO.puts "** ASYNC TASK FIRED FOR BOOKING: #{booking_id} **"
@@ -48,25 +51,30 @@ defmodule Fmps.BookingExpiryTask do
       #Process.send_after(self(), :notify_user, timeoutForNotification)
     end
 
-
     {:ok, booking_id}
   end
 
   def handle_info(:finish_booking, booking_id) do
 
     try do
-      IO.puts "** FINISHING BOOKING #{booking_id} **"
-      printTime()
-
       booking = Repo.get_by!(Booking, id: booking_id) |> Repo.preload(:parking_spot)
       #IO.inspect booking
 
-      Ecto.Changeset.change(booking, %{is_finished: true}) |> Repo.update!()
+      # Booking could be blocked from being marked as finished due to an extension
+      if booking.block_next_update do
+        Ecto.Changeset.change(booking, %{block_next_update: false}) |> Repo.update!()
+      else
+        IO.puts "** FINISHING BOOKING #{booking_id} **"
+        printTime()
+        Ecto.Changeset.change(booking, %{is_finished: true, block_next_update: false}) |> Repo.update!()
+      end
 
       {:noreply, booking_id}
     rescue
       _ -> {:noreply, booking_id}
     end
+
+
 
   end
 
@@ -75,10 +83,12 @@ defmodule Fmps.BookingExpiryTask do
     try do
       booking = Repo.get_by!(Booking, id: booking_id) |> Repo.preload(:parking_spot)
       #IO.inspect booking
-      IO.puts "** RELEASING PARKING SPOT #{booking.parking_spot.id} (BOOKING #{booking_id}) **"
-      printTime()
 
-      Ecto.Changeset.change(booking.parking_spot, %{is_available: true}) |> Repo.update!()
+      if !booking.block_next_update do
+        IO.puts "** RELEASING PARKING SPOT #{booking.parking_spot.id} (BOOKING #{booking_id}) **"
+        printTime()
+        Ecto.Changeset.change(booking.parking_spot, %{is_available: true}) |> Repo.update!()
+      end
 
       {:noreply, booking_id}
     rescue

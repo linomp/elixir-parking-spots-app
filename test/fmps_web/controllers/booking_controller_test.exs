@@ -234,7 +234,7 @@ defmodule FmpsWeb.BookingControllerTest do
 
       # Make leaving time to be exactly 5 seconds from now
       offset = 5
-      currentTime = Time.utc_now()
+      currentTime = Time.add(Time.utc_now(), 2*3600)
       testLeavingTime = Time.add(currentTime, offset, :second)
 
       # create a booking
@@ -245,10 +245,6 @@ defmodule FmpsWeb.BookingControllerTest do
       # Booking should succeed
       assert html_response(conn, 200) =~ ~r/Booking created successfully/
 
-      # check if parking spot was taken
-      selectedLot = Repo.get_by(ParkingSpot, id: selectedLot.id)
-      assert !selectedLot.is_available
-
       # wait for booking to expire
       :timer.sleep(10000)
 
@@ -256,6 +252,7 @@ defmodule FmpsWeb.BookingControllerTest do
       selectedLot = Repo.get_by(ParkingSpot, id: selectedLot.id)
       assert selectedLot.is_available
 
+      # check booking was finished
       conn = get conn, "/ongoing-booking"
       assert html_response(conn, 200) =~ ~r/There's currently no ongoing booking/
 
@@ -268,7 +265,7 @@ defmodule FmpsWeb.BookingControllerTest do
 
       # Make leaving time to be exactly 15 seconds from now
       offset = 15
-      currentTime = Time.utc_now()
+      currentTime = Time.add(Time.utc_now(), 2*3600)
       testLeavingTime = Time.add(currentTime, offset, :second)
 
       # create a booking
