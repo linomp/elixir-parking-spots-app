@@ -10,8 +10,8 @@ defmodule Fmps.BookingExpiryTask do
 
   #alias Ecto.{Changeset, Multi}
 
-  @parking_expiry_offset (if !is_nil(System.get_env("MIX_ENV")) && System.get_env("MIX_ENV") == "test" do -5 else -2*60 end)
-  @notification_offset (if !is_nil(System.get_env("MIX_ENV")) && System.get_env("MIX_ENV") == "test" do -10 else -10*60 end)
+  @parking_expiry_offset (if !is_nil(System.get_env("MIX_ENV")) && System.get_env("MIX_ENV") == "dev" do -2*60 else -5 end)
+  @notification_offset (if !is_nil(System.get_env("MIX_ENV")) && System.get_env("MIX_ENV") == "dev" do -10*60 else -10 end)
   #@ignore_long_bookings (if !is_nil(System.get_env("MIX_ENV")) && System.get_env("MIX_ENV") == "test" do true else false end)
 
   defp printTime() do
