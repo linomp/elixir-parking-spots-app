@@ -2,14 +2,13 @@
 
 ## Deployed App
 
-The app is live! 
+App Demo Temporarily Down ⚠️
 
-Check it out at: 
+We are planning to [migrate it](https://github.com/linomp/asd_2020_fmps/issues/38) from Gigalixir to AWS.
+
+<!--
 https://organic-intrepid-bactrian.gigalixirapp.com/
-
-
-## Project Tracking
-[Link to our Jira project](https://agile-final-project.atlassian.net/secure/RapidBoard.jspa?rapidView=1&view=planning&selectedIssue=FMPS-4&issueLimit=100)
+-->
 
 ## Running locally
 
